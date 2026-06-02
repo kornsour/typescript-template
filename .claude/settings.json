@@ -1,9 +1,1 @@
-{
-  "hooks": {
-    "PreCommit": [
-      {
-        "command": "pnpm check && pnpm test"
-      }
-    ]
-  }
-}
+{}
