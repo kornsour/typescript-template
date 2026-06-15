@@ -25,7 +25,7 @@
     "@t3-oss/env-nextjs": "^0.13.11",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.6",
-    "next-safe-action": "^8.5.3",
+    "next-safe-action": "^8.5.4",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "zod": "^4.4.3"
