@@ -41,3 +41,13 @@ pnpm db:generate  # Generate migration
 pnpm db:migrate   # Run migrations
 pnpm db:studio    # Drizzle Studio GUI
 ```
+
+## Documentation
+
+See [`docs/`](./docs) — the _why_ behind the stack and conventions lives in
+[Architecture Decision Records](./docs/adr), and operational runbooks (e.g.
+[lockfile recovery](./docs/maintenance/pnpm-lockfile.md)) in
+[`docs/maintenance/`](./docs/maintenance).
+
+> Uses pnpm pinned via `packageManager`. Run `corepack enable` once so your
+> local pnpm matches the project ([ADR-0002](./docs/adr/0002-package-manager-pnpm-pinned.md)).
