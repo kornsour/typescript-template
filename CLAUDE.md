@@ -4,6 +4,10 @@
 
 This is a Next.js (App Router) TypeScript template with Tailwind CSS, Biome, Vitest, Playwright, and Drizzle ORM connected to NeonDB (serverless Postgres).
 
+## Decisions & Docs
+
+The rationale for foundational choices (package manager, Node version, tooling, data layer, security headers, testing/CI shape) lives in Architecture Decision Records under `docs/adr/`. **Read the relevant ADR before changing foundational tooling**, and add a superseding ADR when you change a decision. Operational runbooks (e.g. lockfile recovery) are in `docs/maintenance/`.
+
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router, Turbopack)
