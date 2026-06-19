@@ -24,10 +24,10 @@
     "@neondatabase/serverless": "^1.1.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "drizzle-orm": "^0.45.2",
-    "next": "16.2.6",
+    "next": "16.2.9",
     "next-safe-action": "^8.5.4",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
