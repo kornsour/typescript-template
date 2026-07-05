@@ -1,6 +1,6 @@
 ---
 name: provision-app
-description: Provision the external resources a new app from this template needs — Neon Postgres, Google/Apple OAuth, Stripe billing, Vercel project + env, and GitHub repo/secrets — using the vercel, neonctl, gcloud, gh, and stripe CLIs. Use when setting up a fresh app, wiring a new environment, or filling in .env for auth/billing/deploy.
+description: Provision the external resources a new app from this template needs — Neon Postgres, Google/Apple OAuth, Stripe billing, Vercel project + env, a custom domain, and GitHub repo/secrets — using the vercel, neonctl, gcloud, gh, stripe, and cf (Cloudflare) CLIs. Use when setting up a fresh app, wiring a new environment, or filling in .env for auth/billing/deploy.
 ---
 
 # Provision a new app
@@ -94,6 +94,16 @@ vercel deploy --prod
 Prefer the session's Vercel skills when available: `vercel:env` to sync,
 `vercel:deploy` to ship, `vercel:bootstrap` to link + provision Marketplace
 integrations (Neon is available as a Vercel Marketplace integration too).
+
+### Custom domain (optional) — Vercel + Cloudflare
+```bash
+vercel domains add <domain> <project>   # prints the required DNS record + target
+cf dns records create -z <domain> --body '{"type":"CNAME","name":"app","content":"cname.vercel-dns.com","ttl":1,"proxied":false}'
+vercel domains inspect <domain>         # poll until it shows a valid configuration
+```
+Use the exact record type/target `vercel domains add` prints (an apex domain
+needs an `A` record, not `CNAME`). Keep the Cloudflare record **DNS only**
+(`proxied: false`) until Vercel confirms the cert. Details: `docs/cli-reference.md`.
 
 ## After provisioning
 

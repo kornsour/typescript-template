@@ -29,6 +29,24 @@ vercel deploy            # preview
 vercel deploy --prod     # production
 ```
 
+## Custom domain (Vercel + Cloudflare DNS)
+
+```bash
+vercel domains add <domain> <project>   # adds it to the project, prints the
+                                         # required DNS record + target
+cf dns records create -z <domain> --body '{"type":"CNAME","name":"app","content":"cname.vercel-dns.com","ttl":1,"proxied":false}'
+# apex domain instead of a subdomain? use an A record to Vercel's anycast IP:
+#   --body '{"type":"A","name":"@","content":"76.76.21.21","ttl":1,"proxied":false}'
+vercel domains inspect <domain>         # poll until it shows a valid configuration
+```
+
+Use the target/record type `vercel domains add` actually prints (Vercel has
+changed the anycast IP before). Keep the Cloudflare record **DNS only**
+(`proxied: false`) until Vercel confirms the cert — a proxied (orange-cloud)
+record in front of Vercel's own edge/TLS can block certificate issuance. If you
+want Cloudflare's proxy afterward, set its SSL/TLS mode to Full (strict) first.
+See [cli-reference.md](../cli-reference.md#cf--cloudflare-dns-for-a-custom-domain).
+
 ## Post-deploy checklist
 
 1. `NEXT_PUBLIC_APP_URL` = the real HTTPS domain (OAuth redirects + email links).

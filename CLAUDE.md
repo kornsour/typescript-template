@@ -120,7 +120,8 @@ pnpm db:studio        # Drizzle Studio
 
 Agents can use these CLIs (see `docs/cli-reference.md`): **vercel** (deploy/env),
 **neonctl** (Postgres), **gcloud** (Google OAuth project), **gh** (repo/secrets),
-**stripe** (billing). The **`provision-app`** skill orchestrates setting up a new
+**stripe** (billing), **cf** (Cloudflare DNS, for pointing a custom domain at
+Vercel). The **`provision-app`** skill orchestrates setting up a new
 app's resources end-to-end; **`rename-app`** rebrands a fresh copy. Confirm before
 creating billable/public resources.
 
