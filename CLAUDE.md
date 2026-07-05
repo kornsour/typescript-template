@@ -2,99 +2,130 @@
 
 ## Project Overview
 
-This is a Next.js (App Router) TypeScript template with Tailwind CSS, Biome, Vitest, Playwright, and Drizzle ORM connected to NeonDB (serverless Postgres).
+Next.js (App Router) TypeScript template with Tailwind CSS, Biome, Vitest,
+Playwright, and Drizzle ORM. It ships **authentication** (better-auth: Google,
+Apple, email/password), **Stripe subscription billing**, a **local-Postgres →
+Neon** dev/prod split, and hardened security defaults — so a new app starts with
+login, payments, and a database already wired.
 
 ## Decisions & Docs
 
-The rationale for foundational choices (package manager, Node version, tooling, data layer, security headers, testing/CI shape) lives in Architecture Decision Records under `docs/adr/`. **Read the relevant ADR before changing foundational tooling**, and add a superseding ADR when you change a decision. Operational runbooks (e.g. lockfile recovery) are in `docs/maintenance/`.
+Rationale for foundational choices lives in Architecture Decision Records under
+`docs/adr/`. **Read the relevant ADR before changing foundational tooling**, and
+add a superseding ADR when you change a decision. Setup guides are in
+`docs/setup/`, the CLI cheat-sheet in `docs/cli-reference.md`, the security
+posture in `docs/security.md`, and operational runbooks in `docs/maintenance/`.
 
 ## Tech Stack
 
-- **Framework**: Next.js 16 (App Router, Turbopack)
-- **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS v4
-- **Linting/Formatting**: Biome (replaces ESLint + Prettier)
-- **Unit Testing**: Vitest
-- **E2E Testing**: Playwright
-- **ORM**: Drizzle ORM
-- **Database**: NeonDB (serverless Postgres)
-- **Env Validation**: @t3-oss/env-nextjs + Zod
-- **Server Actions**: next-safe-action
-- **Package Manager**: pnpm
+- **Framework**: Next.js 16 (App Router, Turbopack) · **Language**: TypeScript (strict)
+- **Styling**: Tailwind CSS v4 · **Lint/format**: Biome (not ESLint/Prettier)
+- **Unit**: Vitest · **E2E**: Playwright (local only, [ADR-0008](./docs/adr/0008-e2e-local-only.md))
+- **ORM**: Drizzle · **DB**: local Postgres in dev, Neon in prod ([ADR-0011](./docs/adr/0011-local-postgres-neon-dual-driver.md))
+- **Auth**: better-auth, self-hosted ([ADR-0012](./docs/adr/0012-auth-better-auth.md))
+- **Billing**: Stripe, env-flagged ([ADR-0013](./docs/adr/0013-stripe-billing.md))
+- **Email**: pluggable (console in dev, AWS SES when `AWS_REGION` is set)
+- **Env**: `@t3-oss/env-nextjs` + Zod · **Actions**: next-safe-action · **PM**: pnpm
 
 ## Project Structure
 
 ```
 src/
-├── app/              # Next.js App Router pages and layouts
-├── db/               # Database schema and connection (Drizzle + Neon)
-│   ├── index.ts      # DB client (uses type-safe env)
-│   └── schema.ts     # Drizzle schema definitions
-├── lib/              # Shared utilities and helpers
-│   └── safe-action.ts # next-safe-action client
-├── env.ts            # Type-safe environment variables (Zod validated)
-└── __tests__/        # Unit test files
-e2e/                  # Playwright E2E test files
-drizzle/              # Generated migrations (do not edit manually)
+├── app/
+│   ├── (auth)/           # sign-in, sign-up, forgot/reset-password
+│   ├── (app)/dashboard/  # protected demo page (requireUser)
+│   └── api/
+│       ├── auth/[...all]/     # better-auth handler
+│       └── webhooks/stripe/   # signature-verified Stripe webhook
+├── components/           # auth-form, sign-out-button, billing-button
+├── db/                   # schema.ts (auth + billing tables) + dual-driver index.ts
+├── lib/
+│   ├── auth.ts           # better-auth server instance
+│   ├── auth-client.ts    # better-auth React client
+│   ├── auth/             # session.ts (getSession/requireUser), password-schema.ts
+│   ├── password.ts       # password policy (single source of truth)
+│   ├── email/            # pluggable sendEmail()
+│   ├── stripe/           # client, actions, customer, webhook mapping
+│   └── safe-action.ts    # actionClient + authActionClient
+├── env.ts                # type-safe env
+└── proxy.ts              # Next 16 proxy (formerly middleware): auth redirect + CSP
+scripts/                  # setup.sh, rename-app.sh, db-local.sh, hooks/
 ```
 
 ## Common Commands
 
 ```bash
-pnpm dev              # Start dev server (Turbopack)
-pnpm build            # Production build
-pnpm check            # Run Biome checks (lint + format)
-pnpm check:fix        # Auto-fix Biome issues
-pnpm test             # Run unit tests once (Vitest)
-pnpm test:watch       # Run unit tests in watch mode
-pnpm e2e              # Run E2E tests (Playwright)
-pnpm e2e:ui           # Run E2E tests with UI
-pnpm db:generate      # Generate migration from schema changes
-pnpm db:migrate       # Run pending migrations
-pnpm db:push          # Push schema directly (dev only)
-pnpm db:studio        # Open Drizzle Studio
+pnpm bootstrap        # bootstrap a fresh clone (env, secret, local DB, schema)
+pnpm preflight        # read-only check: required + optional tooling, .env, DB, browsers
+pnpm dev              # dev server (Turbopack)
+pnpm build            # production build
+pnpm check[:fix]      # Biome lint+format
+pnpm test             # unit tests (Vitest)
+pnpm e2e[:ui]         # E2E (Playwright, local)
+pnpm db:local         # create the local dev database
+pnpm db:push          # push schema (dev)
+pnpm db:generate      # generate a migration
+pnpm db:migrate       # run migrations (prod path)
+pnpm db:studio        # Drizzle Studio
 ```
 
 ## Code Style
 
-- Biome handles all linting and formatting — do NOT use ESLint or Prettier
-- Indentation: tabs
-- Line width: 100
-- Quotes: double quotes
-- Semicolons: always
-- Run `pnpm check:fix` before committing
+- Biome only; tabs; line width 100; double quotes; semicolons. Run `pnpm check:fix` before committing.
+- A commit is gated by a PreToolUse hook that runs `pnpm check && pnpm test`
+  (`.claude/settings.json` → `scripts/hooks/pre-commit-gate.sh`).
 
 ## Environment Variables
 
-- Defined and validated in `src/env.ts` using `@t3-oss/env-nextjs` + Zod
-- Add new server vars to the `server` object, client vars to `client` (must be prefixed `NEXT_PUBLIC_`)
-- Always add new vars to both `src/env.ts` and `.env.example`
-- Import `env` from `@/env` instead of using `process.env` directly
-- Set `SKIP_ENV_VALIDATION=1` to bypass validation (CI builds without a DB, etc.)
+- Defined + validated in `src/env.ts` (Zod). Add new vars to **both** `src/env.ts`
+  and `.env.example`. Import `env` from `@/env`; never read `process.env` directly.
+- Only `DATABASE_URL` + `BETTER_AUTH_SECRET` are required; social/email/Stripe
+  vars are optional and gate their features. `SKIP_ENV_VALIDATION=1` for CI builds.
 
 ## Database
 
-- Schema is defined in `src/db/schema.ts` using Drizzle ORM
-- Connection is configured in `src/db/index.ts` using `@neondatabase/serverless`
-- Migrations are generated into `drizzle/` — never edit these manually
-- Use `pnpm db:push` for rapid prototyping, `pnpm db:generate` + `pnpm db:migrate` for production
+- Schema in `src/db/schema.ts`. `src/db/index.ts` auto-selects the driver from
+  `DATABASE_URL` (Neon HTTP for `*.neon.tech`, else `pg`). Same code, both envs.
+- `db:push` for prototyping; `db:generate` + `db:migrate` for production. Never
+  edit `drizzle/` migrations by hand.
+
+## Auth
+
+- Server instance: `src/lib/auth.ts`. Read the session with `getSession()` /
+  `requireUser()` from `src/lib/auth/session.ts` in **every** protected page and
+  server action — the `src/proxy.ts` cookie check is only an optimistic redirect.
+- Password rules live in `src/lib/password.ts` (one source of truth), enforced on
+  the form, in the shared Zod schema, and server-side. Social providers turn on
+  when their env vars exist.
+
+## Billing (Stripe)
+
+- Inert until `STRIPE_SECRET_KEY` is set (`isBillingEnabled`). Server actions in
+  `src/lib/stripe/actions.ts`; the webhook (`src/app/api/webhooks/stripe/route.ts`)
+  is the source of truth for subscription state. **Check entitlement by reading
+  the `subscription` table server-side**, never a client value.
 
 ## Server Actions
 
-- Use `next-safe-action` for type-safe, validated server actions
-- Import `actionClient` from `@/lib/safe-action`
-- Define actions with `.schema(zodSchema).action(async ({ parsedInput }) => { ... })`
+- `next-safe-action`: `actionClient` for public, `authActionClient` (adds
+  `ctx.user`) for authenticated. Define with `.schema(zod).action(async ({ parsedInput, ctx }) => …)`.
+
+## Security
+
+- See `docs/security.md`. Drizzle parameterizes queries — never build SQL by
+  string concatenation. Baseline headers in `next.config.ts`; nonce CSP in
+  `src/proxy.ts`. Run `/security-review` before shipping.
+
+## Provisioning & CLIs
+
+Agents can use these CLIs (see `docs/cli-reference.md`): **vercel** (deploy/env),
+**neonctl** (Postgres), **gcloud** (Google OAuth project), **gh** (repo/secrets),
+**stripe** (billing). The **`provision-app`** skill orchestrates setting up a new
+app's resources end-to-end; **`rename-app`** rebrands a fresh copy. Confirm before
+creating billable/public resources.
 
 ## Testing
 
-### Unit Tests (Vitest)
-- Tests live alongside source code or in `src/__tests__/`
-- Name test files `*.test.ts` or `*.test.tsx`
-- Use `describe` / `it` / `expect` from Vitest
-- Path alias `@/*` resolves to `src/*` in tests
-
-### E2E Tests (Playwright)
-- Tests live in `e2e/`
-- Name test files `*.spec.ts`
-- Playwright auto-starts the dev server for tests
-- Only Chromium is configured by default
+- Unit: `*.test.ts(x)` alongside source or in `src/__tests__/`; `@/*` → `src/*`.
+- E2E: `e2e/*.spec.ts`; Playwright auto-starts the dev server (Chromium only).
+  Needs a local DB running for auth flows.

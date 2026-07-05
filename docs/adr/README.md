@@ -39,3 +39,7 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0008](./0008-e2e-local-only.md) | Run Playwright E2E locally, not in CI | Accepted |
 | [0009](./0009-security-headers.md) | Set baseline HTTP security headers | Accepted |
 | [0010](./0010-unit-testing-vitest.md) | Unit test with Vitest in a Node environment | Accepted |
+| [0011](./0011-local-postgres-neon-dual-driver.md) | Local Postgres in dev, Neon in prod (dual driver) | Accepted |
+| [0012](./0012-auth-better-auth.md) | Authentication with better-auth (self-hosted) | Accepted |
+| [0013](./0013-stripe-billing.md) | Stripe subscription billing, feature-flagged by env | Accepted |
+| [0014](./0014-content-security-policy.md) | Add a nonce-based Content-Security-Policy in middleware | Accepted |

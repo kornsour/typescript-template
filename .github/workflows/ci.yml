@@ -99,6 +99,13 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          # No real services in CI; SKIP_ENV_VALIDATION (set at workflow level)
+          # bypasses validation, and these placeholders keep module-load code
+          # (auth/db clients) from tripping on undefined values during the build.
+          DATABASE_URL: "postgresql://user:pass@localhost:5432/build"
+          BETTER_AUTH_SECRET: "ci-build-placeholder-secret-not-used-at-runtime"
+          NEXT_PUBLIC_APP_URL: "http://localhost:3000"
 
   # E2E tests (Playwright) are intentionally not run in CI — they are heavy
   # (browser downloads + a running dev server). Run them locally with `pnpm e2e`.
