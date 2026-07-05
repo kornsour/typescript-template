@@ -29,6 +29,9 @@ export const env = createEnv({
 		// Show the OAuth buttons only when the provider is configured.
 		NEXT_PUBLIC_GOOGLE_ENABLED: z.stringbool().default(false),
 		NEXT_PUBLIC_APPLE_ENABLED: z.stringbool().default(false),
+		// Surface the AI Disclosure footer link + <AiDisclosureNotice> once this
+		// app actually has an AI-facing feature. See src/app/(legal)/ai-disclosure.
+		NEXT_PUBLIC_AI_FEATURES_ENABLED: z.stringbool().default(false),
 		// Publishable key + a default price for the demo checkout button.
 		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
 		NEXT_PUBLIC_STRIPE_PRICE_ID: z.string().optional(),
@@ -48,6 +51,7 @@ export const env = createEnv({
 		NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 		NEXT_PUBLIC_GOOGLE_ENABLED: process.env.NEXT_PUBLIC_GOOGLE_ENABLED,
 		NEXT_PUBLIC_APPLE_ENABLED: process.env.NEXT_PUBLIC_APPLE_ENABLED,
+		NEXT_PUBLIC_AI_FEATURES_ENABLED: process.env.NEXT_PUBLIC_AI_FEATURES_ENABLED,
 		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 		NEXT_PUBLIC_STRIPE_PRICE_ID: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID,
 	},
