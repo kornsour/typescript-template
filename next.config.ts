@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 
 /**
  * Baseline security headers applied to every response.
+ * See docs/adr/0009-security-headers.md.
  *
- * A Content-Security-Policy is intentionally omitted: a strict CSP needs
- * per-app tuning (and usually a nonce set in middleware) and a wrong one
- * silently breaks the app. Add one per project once the asset/script
- * origins are known. See docs/adr/0009-security-headers.md.
+ * The Content-Security-Policy is NOT set here — it's a per-request nonce-based
+ * policy set in `src/proxy.ts` (see docs/adr/0014-content-security-policy.md).
+ * Tighten that policy to each app's real origins.
  */
 const securityHeaders = [
 	{ key: "X-Content-Type-Options", value: "nosniff" },

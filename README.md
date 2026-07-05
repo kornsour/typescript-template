@@ -1,22 +1,21 @@
 # TypeScript Template
 
-A batteries-included Next.js template with TypeScript, Tailwind CSS, Biome, Vitest, and Drizzle ORM (NeonDB).
+A batteries-included Next.js starter: TypeScript, Tailwind, Drizzle, **auth**
+(Google · Apple · email/password), **Stripe billing**, and a **local-Postgres →
+Neon** dev/prod split — with security defaults and agent tooling from the start.
 
-## Getting Started
+## Quick start
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Copy environment variables
-cp .env.example .env
-# Fill in DATABASE_URL with your NeonDB connection string
-
-# Start the dev server
-pnpm dev
+bash scripts/rename-app.sh my-app   # name the project (or use the `rename-app` skill)
+pnpm setup                          # .env + secret + local DB + schema
+pnpm dev                            # → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the app.
+`pnpm setup` needs a local Postgres (`brew install postgresql@17 && brew services
+start postgresql@17`). Email/password sign-up works immediately; verification and
+reset links print to the dev server console. Add Google/Apple/Stripe/email keys
+to `.env` when you want them — each is inert until configured.
 
 ## Stack
 
@@ -24,30 +23,33 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 |------|---------|
 | [Next.js](https://nextjs.org) | React framework (App Router) |
 | [Tailwind CSS](https://tailwindcss.com) | Utility-first CSS |
-| [Biome](https://biomejs.dev) | Linter + formatter |
-| [Vitest](https://vitest.dev) | Unit testing |
 | [Drizzle ORM](https://orm.drizzle.team) | Type-safe SQL ORM |
-| [NeonDB](https://neon.tech) | Serverless Postgres |
+| Local Postgres / [Neon](https://neon.tech) | Dev database / serverless Postgres in prod |
+| [better-auth](https://better-auth.com) | Self-hosted auth (Google, Apple, email/password) |
+| [Stripe](https://stripe.com) | Subscription billing (env-flagged) |
+| [Biome](https://biomejs.dev) · [Vitest](https://vitest.dev) · [Playwright](https://playwright.dev) | Lint/format · unit · e2e |
 
 ## Scripts
 
 ```bash
-pnpm dev          # Dev server (Turbopack)
-pnpm build        # Production build
-pnpm check:fix    # Lint + format (auto-fix)
-pnpm test         # Run tests
-pnpm db:push      # Push schema to DB
-pnpm db:generate  # Generate migration
-pnpm db:migrate   # Run migrations
-pnpm db:studio    # Drizzle Studio GUI
+pnpm setup        # bootstrap a fresh clone
+pnpm dev          # dev server
+pnpm build        # production build
+pnpm check:fix    # lint + format
+pnpm test         # unit tests
+pnpm e2e          # e2e (local)
+pnpm db:local     # create local dev DB
+pnpm db:push      # push schema (dev)
+pnpm db:generate && pnpm db:migrate   # migrations (prod path)
 ```
 
 ## Documentation
 
-See [`docs/`](./docs) — the _why_ behind the stack and conventions lives in
-[Architecture Decision Records](./docs/adr), and operational runbooks (e.g.
-[lockfile recovery](./docs/maintenance/pnpm-lockfile.md)) in
-[`docs/maintenance/`](./docs/maintenance).
+Start with [`docs/setup/getting-started.md`](./docs/setup/getting-started.md).
+The _why_ behind the stack is in [ADRs](./docs/adr); provisioning + operations in
+[`docs/cli-reference.md`](./docs/cli-reference.md); security in
+[`docs/security.md`](./docs/security.md). Agents: see [`CLAUDE.md`](./CLAUDE.md)
+and the `provision-app` / `rename-app` skills in `.claude/skills/`.
 
-> Uses pnpm pinned via `packageManager`. Run `corepack enable` once so your
-> local pnpm matches the project ([ADR-0002](./docs/adr/0002-package-manager-pnpm-pinned.md)).
+> Uses pnpm pinned via `packageManager`. Run `corepack enable` once so your local
+> pnpm matches the project ([ADR-0002](./docs/adr/0002-package-manager-pnpm-pinned.md)).
