@@ -1,22 +1,17 @@
 # Legal disclosures
 
-> **Not legal advice.** This document and the pages under `src/app/(legal)/`
-> are a starting scaffold, written to name the right categories of obligation —
-> they are not a substitute for review by a licensed attorney in the state(s)
-> and countries where your business and users are. Treat everything below as
-> "things to check with counsel," not as a compliance guarantee.
-
 ## What's scaffolded
 
-| Page | Route | Covers |
-|------|-------|--------|
-| Terms of Service | `/terms` | Account terms, billing, IP, liability, governing law |
-| Privacy Policy | `/privacy` | What's collected, why, sharing, retention, rights requests |
-| Acceptable Use Policy | `/acceptable-use` | Prohibited conduct, including AI-feature misuse |
-| AI Disclosure | `/ai-disclosure` | AI-interaction disclosure, limitations, high-risk-use warning |
-| Cookie Policy | `/cookies` | Current (essential-only) cookie use |
+| Page                  | Route             | Covers                                                        |
+| --------------------- | ----------------- | ------------------------------------------------------------- |
+| Terms of Service      | `/terms`          | Account terms, billing, IP, liability, governing law          |
+| Privacy Policy        | `/privacy`        | What's collected, why, sharing, retention, rights requests    |
+| Acceptable Use Policy | `/acceptable-use` | Prohibited conduct, including AI-feature misuse               |
+| AI Disclosure         | `/ai-disclosure`  | AI-interaction disclosure, limitations, high-risk-use warning |
+| Cookie Policy         | `/cookies`        | Current (essential-only) cookie use                           |
 
 Plus:
+
 - `src/content/legal/config.ts` — company info, governing law, and `LEGAL_VERSION` in one place.
 - Sign-up requires an explicit ToS/Privacy checkbox, enforced server-side in `src/lib/auth.ts` (not just client-side), and the accepted version + timestamp is stored on the `user` row.
 - `<AiDisclosureNotice>` (`src/components/ai-disclosure-notice.tsx`) — drop into any AI-facing feature's UI so the disclosure is at the point of use.
@@ -31,7 +26,7 @@ Plus:
 4. Decide whether you want a mandatory-arbitration / class-action-waiver clause in the ToS. Deliberately left out as a business decision, not a default.
 5. If you serve B2B customers who ask for a **Data Processing Addendum (DPA)** (common for anyone processing EU personal data as a processor), you'll need one — this template doesn't include a DPA template; that's a negotiated contract, not boilerplate.
 6. When you materially change a legal page, bump `LEGAL_VERSION` in `src/content/legal/config.ts`. New sign-ups are gated on the current version automatically; **existing users are not automatically re-prompted** — add that check to `requireUser()`/`getSession()` call sites if you need to force re-acceptance.
-7. If you add analytics, ads, or any non-essential tracking cookie, upgrade `src/components/cookie-banner.tsx` from a notice into a real accept/reject consent control *before* those trackers load, and list them in the Cookie Policy.
+7. If you add analytics, ads, or any non-essential tracking cookie, upgrade `src/components/cookie-banner.tsx` from a notice into a real accept/reject consent control _before_ those trackers load, and list them in the Cookie Policy.
 
 ## The researched landscape (general awareness, not advice)
 
@@ -49,7 +44,7 @@ overlays (e.g. age-appropriate design code style laws). The template's default
 posture is "not directed to children" — if that's not true for your app, this
 needs much more than a footer disclosure.
 
-**GDPR / UK GDPR.** Applies based on *who your users are*, not where your
+**GDPR / UK GDPR.** Applies based on _who your users are_, not where your
 company is incorporated — a US company with EU/UK visitors can be in scope.
 Key differences from US law: you need an affirmative lawful basis for each
 processing purpose (not just a disclosure), consent must be opt-in for
@@ -57,6 +52,7 @@ non-essential cookies/tracking, and data-subject rights (access, erasure,
 portability, objection) are broader than most US state rights.
 
 **AI-specific — the fast-moving part.**
+
 - **Chatbot/bot-disclosure laws** — e.g. California's Bot Disclosure Law (Cal.
   Bus. & Prof. Code §17941) — require disclosing that a user is interacting
   with an automated system, at least in commercial/influence contexts.
@@ -77,8 +73,3 @@ portability, objection) are broader than most US state rights.
   applicability as you scale.
 - **Utah AI Policy Act** — disclosure obligations for generative AI used in
   certain regulated consumer interactions.
-
-None of the above is a complete list, and the "high-risk"/consequential-decision
-category in particular (employment, lending, housing, insurance, healthcare,
-education) needs real legal review before you ship — the template's default AI
-Disclosure page says so explicitly and stops there on purpose.

@@ -121,9 +121,8 @@ pnpm db:studio        # Drizzle Studio
 
 ## Legal
 
-- `src/app/(legal)/` (ToS, Privacy, Acceptable Use, AI Disclosure, Cookies) ships
-  **unreviewed starter text** — see `docs/legal.md` (not legal advice) before
-  editing or shipping. Fill in `src/content/legal/config.ts` first; that's the
+- `src/app/(legal)/` (ToS, Privacy, Acceptable Use, AI Disclosure, Cookies).
+  Fill in `src/content/legal/config.ts` first; that's the
   single source for company name/address/governing law and `LEGAL_VERSION`.
 - Sign-up requires accepting current-version ToS/Privacy, enforced server-side
   in `src/lib/auth.ts`'s `before` hook — don't relax that to client-only.

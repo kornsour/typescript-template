@@ -17,8 +17,7 @@ Act and NYC Local Law 144). Shipping with no legal pages at all, or shipping
 with generic legal pages that don't mention AI, are both worse starting points
 than a scaffold that at least names the right categories.
 
-Claude Code is not a law firm and this template ships no legally reviewed text.
-The goal of this ADR is narrower: make it structurally hard to forget the
+Make it structurally hard to forget the
 legal-disclosure surface a real launch needs, and put the AI-specific
 disclosure at the point of use, not just buried in a footer link.
 
@@ -56,7 +55,7 @@ disclosure at the point of use, not just buried in a footer link.
   Cookie Policy page both flag that adding analytics/ads/tracking cookies later
   requires upgrading this to a real accept/reject control first.
 - `docs/legal.md` is the pre-launch checklist and a summary of the researched
-  landscape (with named statutes), explicitly framed as not legal advice.
+  landscape (with named statutes)
 
 ## Consequences
 
