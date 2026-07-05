@@ -28,8 +28,8 @@ run before shipping. Read alongside the ADRs it links.
 3. OAuth redirect URIs registered with Google/Apple match `<APP_URL>/api/auth/callback/<provider>`.
 4. Stripe webhook endpoint added in the Stripe dashboard with a **production**
    signing secret (test-mode `whsec_` won't verify live events).
-5. Email verification is required in production — confirm `RESEND_API_KEY` is set
-   so users can actually verify.
+5. Email verification is required in production — confirm `AWS_REGION` is set and
+   `EMAIL_FROM` is a verified SES identity so users can actually verify.
 6. Tighten the CSP in `src/proxy.ts` to your real origins; drop what you don't use.
 7. Run the **`/security-review`** skill on the diff before merging.
 8. Neon: use a pooled connection string and restrict DB access; rotate on leak.

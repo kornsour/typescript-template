@@ -51,5 +51,5 @@ require composition (upper/lower/number/special), flip `REQUIRE_COMPOSITION` in
 ## Email verification & reset
 
 better-auth sends verification + reset emails through `src/lib/email` (console in
-dev, Resend when `RESEND_API_KEY` is set). Verification is only *required* in
+dev, AWS SES when `AWS_REGION` is set). Verification is only *required* in
 production, so local dev and e2e aren't blocked on it.

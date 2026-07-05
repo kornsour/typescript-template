@@ -17,14 +17,14 @@ Vercel (deployed) — see step 5.
 ## 0. Local baseline (no external accounts)
 
 ```bash
-pnpm setup      # creates .env, generates BETTER_AUTH_SECRET, local DB, pushes schema
+pnpm bootstrap  # creates .env, generates BETTER_AUTH_SECRET, local DB, pushes schema
 pnpm dev
 ```
 The app runs with just local Postgres + email/password. Add the services below as needed.
 
 ## 1. Database — Neon (preview/prod)
 
-Local dev uses native Postgres (`pnpm setup`). For deployed environments use Neon.
+Local dev uses native Postgres (`pnpm bootstrap`). For deployed environments use Neon.
 ```bash
 neonctl auth                                  # one-time browser login
 neonctl projects create --name <app>          # note the project id
@@ -88,7 +88,7 @@ vercel link                                                 # link this dir to a
 # Push each secret to Vercel (repeat per var, per environment):
 vercel env add DATABASE_URL production      # paste the Neon string
 vercel env add BETTER_AUTH_SECRET production # use a NEW `openssl rand -base64 32`
-# …GOOGLE_*, APPLE_*, STRIPE_*, RESEND_*, NEXT_PUBLIC_APP_URL, etc.
+# …GOOGLE_*, APPLE_*, STRIPE_*, AWS_REGION, EMAIL_FROM, NEXT_PUBLIC_APP_URL, etc.
 vercel deploy --prod
 ```
 Prefer the session's Vercel skills when available: `vercel:env` to sync,

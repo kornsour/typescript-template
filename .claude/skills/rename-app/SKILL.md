@@ -20,7 +20,7 @@ This updates:
 Then review the diff and finish setup:
 ```bash
 git diff
-pnpm setup    # creates .env, secret, local DB, pushes schema
+pnpm bootstrap    # creates .env, secret, local DB, pushes schema
 pnpm dev
 ```
 

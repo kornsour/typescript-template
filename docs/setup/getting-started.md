@@ -9,6 +9,9 @@ From a fresh copy of the template to a running app in a few minutes.
 - Optional CLIs for provisioning/deploy: `vercel`, `neonctl`, `gcloud`, `gh`, `stripe`
   (see [cli-reference.md](../cli-reference.md))
 
+Run `pnpm preflight` any time to check what's installed and what's missing — it's
+read-only, so it's safe to run before `pnpm bootstrap` or whenever something feels off.
+
 ## 1. Name the project
 
 ```bash
@@ -18,11 +21,11 @@ bash scripts/rename-app.sh my-app     # or use the `rename-app` skill
 ## 2. Bootstrap
 
 ```bash
-pnpm setup     # .env + BETTER_AUTH_SECRET + local DB + schema push
+pnpm bootstrap     # .env + BETTER_AUTH_SECRET + local DB + schema push
 pnpm dev
 ```
 
-`pnpm setup` is idempotent. It creates `.env`, generates `BETTER_AUTH_SECRET`,
+`pnpm bootstrap` is idempotent. It creates `.env`, generates `BETTER_AUTH_SECRET`,
 creates the `my_app_dev` local database, points `DATABASE_URL` at it, installs
 deps, and runs `pnpm db:push`.
 
@@ -36,7 +39,7 @@ Each is inert until configured; add keys to `.env`:
 
 - **Google / Apple login** → [auth-setup.md](./auth-setup.md)
 - **Stripe billing** → [stripe.md](./stripe.md)
-- **Real email** → set `RESEND_API_KEY` + `EMAIL_FROM`
+- **Real email** → set `AWS_REGION` + `EMAIL_FROM` (verified SES identity)
 - **Neon (deployed DB)** → [database.md](./database.md)
 - **Deploy** → [deployment.md](./deployment.md)
 

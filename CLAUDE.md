@@ -24,7 +24,7 @@ posture in `docs/security.md`, and operational runbooks in `docs/maintenance/`.
 - **ORM**: Drizzle · **DB**: local Postgres in dev, Neon in prod ([ADR-0011](./docs/adr/0011-local-postgres-neon-dual-driver.md))
 - **Auth**: better-auth, self-hosted ([ADR-0012](./docs/adr/0012-auth-better-auth.md))
 - **Billing**: Stripe, env-flagged ([ADR-0013](./docs/adr/0013-stripe-billing.md))
-- **Email**: pluggable (console in dev, Resend when keyed)
+- **Email**: pluggable (console in dev, AWS SES when `AWS_REGION` is set)
 - **Env**: `@t3-oss/env-nextjs` + Zod · **Actions**: next-safe-action · **PM**: pnpm
 
 ## Project Structure
@@ -55,7 +55,8 @@ scripts/                  # setup.sh, rename-app.sh, db-local.sh, hooks/
 ## Common Commands
 
 ```bash
-pnpm setup            # bootstrap a fresh clone (env, secret, local DB, schema)
+pnpm bootstrap        # bootstrap a fresh clone (env, secret, local DB, schema)
+pnpm preflight        # read-only check: required + optional tooling, .env, DB, browsers
 pnpm dev              # dev server (Turbopack)
 pnpm build            # production build
 pnpm check[:fix]      # Biome lint+format

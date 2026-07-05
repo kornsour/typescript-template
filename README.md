@@ -8,11 +8,11 @@ Neon** dev/prod split — with security defaults and agent tooling from the star
 
 ```bash
 bash scripts/rename-app.sh my-app   # name the project (or use the `rename-app` skill)
-pnpm setup                          # .env + secret + local DB + schema
+pnpm bootstrap                      # .env + secret + local DB + schema
 pnpm dev                            # → http://localhost:3000
 ```
 
-`pnpm setup` needs a local Postgres (`brew install postgresql@17 && brew services
+`pnpm bootstrap` needs a local Postgres (`brew install postgresql@17 && brew services
 start postgresql@17`). Email/password sign-up works immediately; verification and
 reset links print to the dev server console. Add Google/Apple/Stripe/email keys
 to `.env` when you want them — each is inert until configured.
@@ -32,7 +32,7 @@ to `.env` when you want them — each is inert until configured.
 ## Scripts
 
 ```bash
-pnpm setup        # bootstrap a fresh clone
+pnpm bootstrap    # bootstrap a fresh clone
 pnpm dev          # dev server
 pnpm build        # production build
 pnpm check:fix    # lint + format

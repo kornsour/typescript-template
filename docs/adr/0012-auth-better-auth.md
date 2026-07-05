@@ -35,7 +35,7 @@ Use **better-auth**, self-hosted, storing `user`/`session`/`account`/
   optimistic cookie redirect only; pages/actions still call `requireUser()`.
 - **Rate limiting:** better-auth's limiter is enabled (stricter on auth paths).
 - **Email:** verification + password-reset go through the pluggable sender in
-  `src/lib/email` (console in dev, Resend when keyed). Email verification is
+  `src/lib/email` (console in dev, AWS SES when `AWS_REGION` is set). Email verification is
   only *required* in production so local dev and e2e stay frictionless.
 
 ## Consequences

@@ -16,7 +16,7 @@ environment (Production / Preview). Minimum to boot: `DATABASE_URL` (Neon) and a
 ```bash
 vercel env add DATABASE_URL production
 vercel env add BETTER_AUTH_SECRET production      # openssl rand -base64 32
-# …GOOGLE_*, APPLE_*, STRIPE_*, RESEND_*, NEXT_PUBLIC_APP_URL
+# …GOOGLE_*, APPLE_*, STRIPE_*, AWS_REGION, EMAIL_FROM, NEXT_PUBLIC_APP_URL
 vercel env pull .env.local                        # sync down for local parity
 ```
 Or use the session's Vercel skills: `vercel:env` (sync/diff), `vercel:deploy`
@@ -34,7 +34,11 @@ vercel deploy --prod     # production
 1. `NEXT_PUBLIC_APP_URL` = the real HTTPS domain (OAuth redirects + email links).
 2. Register production OAuth redirect URIs (`<APP_URL>/api/auth/callback/<provider>`).
 3. Add the Stripe **live** webhook endpoint + signing secret.
-4. Confirm `RESEND_API_KEY` is set (email verification is required in prod).
+4. Confirm `AWS_REGION` + `EMAIL_FROM` are set and `EMAIL_FROM` is a verified SES
+   identity/domain in that region (email verification is required in prod).
+   Vercel has no IAM role to fall back on, so the AWS SDK's default credential
+   chain needs `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` set as env vars too
+   (app code has no provider-specific logic either way).
 5. Run schema migrations against Neon: `pnpm db:migrate` (with prod `DATABASE_URL`).
 6. Work through [`../security.md`](../security.md) and run `/security-review`.
 

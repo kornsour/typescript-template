@@ -5,7 +5,8 @@ commands you actually reach for. Agents: prefer these CLIs over dashboards where
 a CLI path exists; the `provision-app` skill orchestrates them end-to-end.
 
 Install (macOS): `brew install vercel-cli neonctl gh stripe/stripe-cli/stripe`;
-`gcloud` via the Google Cloud SDK installer. Check with `--version`.
+`gcloud` via the Google Cloud SDK installer. Check with `--version`, or run
+`pnpm preflight` to check all of them (plus Node/pnpm/Postgres/`.env`) at once.
 
 ## vercel — hosting, env, deploys
 | Task | Command |

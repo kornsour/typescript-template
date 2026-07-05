@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
  * sign out → confirm the dashboard now redirects to sign-in.
  *
  * Requires a local database (the dev server connects to DATABASE_URL). Run with
- * `pnpm e2e` after `pnpm setup`. E2E is local-only (ADR-0008).
+ * `pnpm e2e` after `pnpm bootstrap`. E2E is local-only (ADR-0008).
  */
 test("sign up, reach dashboard, sign out, get redirected", async ({ page }) => {
 	// Unique email per run so re-runs don't collide on the unique constraint.

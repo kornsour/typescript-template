@@ -15,8 +15,8 @@ export const env = createEnv({
 		APPLE_CLIENT_ID: z.string().optional(),
 		APPLE_CLIENT_SECRET: z.string().optional(),
 
-		// ---- Email (optional — falls back to console logging in dev) ----
-		RESEND_API_KEY: z.string().optional(),
+		// ---- Email: AWS SES (optional — falls back to console logging in dev) ----
+		AWS_REGION: z.string().optional(),
 		EMAIL_FROM: z.string().optional(),
 
 		// ---- Billing: Stripe (optional — billing is inert until set) ----
@@ -41,7 +41,7 @@ export const env = createEnv({
 		GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 		APPLE_CLIENT_ID: process.env.APPLE_CLIENT_ID,
 		APPLE_CLIENT_SECRET: process.env.APPLE_CLIENT_SECRET,
-		RESEND_API_KEY: process.env.RESEND_API_KEY,
+		AWS_REGION: process.env.AWS_REGION,
 		EMAIL_FROM: process.env.EMAIL_FROM,
 		STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
 		STRIPE_WEBHOOK_SIGNING_SECRET: process.env.STRIPE_WEBHOOK_SIGNING_SECRET,

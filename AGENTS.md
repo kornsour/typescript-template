@@ -6,7 +6,7 @@ security conventions.
 
 Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
 
-- **Setup:** `pnpm setup` (needs local Postgres). See `docs/setup/getting-started.md`.
+- **Setup:** `pnpm bootstrap` (needs local Postgres). See `docs/setup/getting-started.md`.
 - **Before committing:** `pnpm check:fix && pnpm test`. A commit hook enforces this.
 - **Env:** add new vars to both `src/env.ts` and `.env.example`; import `env` from
   `@/env`, never `process.env`.

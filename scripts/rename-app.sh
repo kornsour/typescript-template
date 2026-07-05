@@ -52,4 +52,4 @@ for (const p of [".env", ".env.example"]) {
 console.log(`✓ Renamed to "${name}" (title "${title}", db "${dbName}")`);
 NODE
 
-echo "Review the changes, then run:  pnpm setup"
+echo "Review the changes, then run:  pnpm bootstrap"
