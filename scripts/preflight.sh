@@ -88,7 +88,7 @@ fi
 
 say "5/6 · Optional: provisioning/deploy CLIs"
 
-for c in vercel neonctl gcloud gh stripe; do
+for c in vercel neonctl gcloud gh stripe cf; do
 	have "$c" && ok "$c ($($c --version 2>/dev/null | head -n1))" || skip "$c — needed for the 'provision-app' skill / docs/cli-reference.md"
 done
 
