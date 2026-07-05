@@ -13,17 +13,16 @@
 export const LEGAL_VERSION = "1.0";
 
 export const legalConfig = {
-	// TODO: your registered business name, e.g. "Acme Software, Inc."
-	companyName: "[YOUR COMPANY LEGAL NAME]",
-	// TODO: e.g. "a Michigan limited liability company" / "a Delaware corporation"
-	companyEntityType: "[YOUR ENTITY TYPE AND STATE OF FORMATION]",
-	// TODO: your registered/principal business address (required in most privacy
-	// policies and many state ToS disclosure rules).
-	registeredAddress: "[STREET ADDRESS, CANTON, MI ZIP]",
-	// TODO: general and privacy-specific contact addresses. Many state privacy
-	// laws (and GDPR) require a specific channel for rights requests.
-	contactEmail: "legal@yourdomain.com",
-	privacyEmail: "privacy@yourdomain.com",
+	companyName: "Kaiserauer Solutions LLC",
+	companyEntityType: "a Michigan limited liability company",
+	// No published street address yet — offered on request instead of publishing
+	// a home address. Revisit if a jurisdiction you operate in requires one
+	// printed on the page itself.
+	registeredAddress: "Available upon written request to the contact email below.",
+	// Per-app repos should override these to that app's own domain
+	// (e.g. support@<app>.com) once support-email routing is set up.
+	contactEmail: "ajkaiserauer@gmail.com",
+	privacyEmail: "ajkaiserauer@gmail.com",
 	// Governing law / venue for the ToS. Defaults to the founder's home state;
 	// change if you incorporate elsewhere.
 	governingLawState: "Michigan",
