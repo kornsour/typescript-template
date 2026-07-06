@@ -57,11 +57,19 @@ See [cli-reference.md](../cli-reference.md#cf--cloudflare-dns-for-a-custom-domai
    Vercel has no IAM role to fall back on, so the AWS SDK's default credential
    chain needs `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` set as env vars too
    (app code has no provider-specific logic either way).
-5. Run schema migrations against Neon: `pnpm db:migrate` (with prod `DATABASE_URL`).
+5. Schema migrations apply automatically — `pnpm build` runs `pnpm db:deploy`
+   before `next build` on every Vercel deploy (gated on the `VERCEL` env var,
+   so this doesn't need a manual step). See
+   [`../maintenance/database-migrations.md`](../maintenance/database-migrations.md).
 6. Work through [`../security.md`](../security.md) and run `/security-review`.
 
 ## CI
 
 `.github/workflows/ci.yml` runs Biome, `tsc`, Vitest, and `pnpm build` on every
-push/PR with `SKIP_ENV_VALIDATION=1` (no DB in CI). E2E runs locally only
-([ADR-0008](../adr/0008-e2e-local-only.md)).
+push/PR with `SKIP_ENV_VALIDATION=1` (no DB in CI); `db-migration-check` fails a
+PR that changes `src/db/schema.ts` without a matching migration file. E2E runs
+locally only ([ADR-0008](../adr/0008-e2e-local-only.md)).
+
+`.github/workflows/neon-preview.yml` gives each PR its own migrated Neon branch
+once `NEON_PROJECT_ID` is set — see
+[`../maintenance/database-migrations.md`](../maintenance/database-migrations.md).

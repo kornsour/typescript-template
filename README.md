@@ -43,6 +43,9 @@ pnpm db:push      # push schema (dev)
 pnpm db:generate && pnpm db:migrate   # migrations (prod path)
 ```
 
+Migrations auto-apply on every Vercel build, and CI blocks a PR that changes
+the schema without one — see [`docs/maintenance/database-migrations.md`](./docs/maintenance/database-migrations.md).
+
 ## Documentation
 
 Start with [`docs/setup/getting-started.md`](./docs/setup/getting-started.md).
