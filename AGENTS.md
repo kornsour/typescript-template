@@ -13,7 +13,9 @@ Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
 - **Auth:** gate protected code with `requireUser()` (`src/lib/auth/session.ts`),
   not the middleware alone.
 - **DB:** edit `src/db/schema.ts`; `pnpm db:push` (dev) / `db:generate`+`db:migrate`
-  (prod). Never hand-edit `drizzle/`.
+  (prod). Never hand-edit `drizzle/`. CI fails a PR that changes `schema.ts`
+  without a matching migration file; Vercel builds auto-apply pending
+  migrations via `db:deploy`. See `docs/maintenance/database-migrations.md`.
 - **Foundational changes:** read the relevant ADR in `docs/adr/` first; add a
   superseding ADR when you change a decision.
 - **Provisioning:** use the CLIs in `docs/cli-reference.md`; the `provision-app`

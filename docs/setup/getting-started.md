@@ -27,7 +27,7 @@ pnpm dev
 
 `pnpm bootstrap` is idempotent. It creates `.env`, generates `BETTER_AUTH_SECRET`,
 creates the `my_app_dev` local database, points `DATABASE_URL` at it, installs
-deps, and runs `pnpm db:push`.
+deps, and applies the template's committed migrations (`pnpm db:migrate`).
 
 Open http://localhost:3000 — sign up with email/password works immediately.
 Verification/reset emails are printed to the dev server console (no email
@@ -56,3 +56,6 @@ pnpm db:push        # push schema (dev)
 pnpm db:generate && pnpm db:migrate   # migrations (prod path)
 pnpm db:studio      # Drizzle Studio
 ```
+
+Migrations apply automatically at deploy time and are checked in CI — see
+[`../maintenance/database-migrations.md`](../maintenance/database-migrations.md).

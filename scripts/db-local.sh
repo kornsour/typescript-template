@@ -33,4 +33,4 @@ echo
 echo "Add this to your .env (local development):"
 echo "  DATABASE_URL=\"postgresql://${USER}@localhost:5432/${DB_NAME}\""
 echo
-echo "Then apply the schema with:  pnpm db:push"
+echo "Then apply the schema with:  pnpm db:migrate  (or pnpm db:push while prototyping)"
