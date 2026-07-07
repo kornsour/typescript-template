@@ -1,0 +1,49 @@
+name: Provision Workspace domain
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "get-token (fetch the DNS TXT verification value) or verify-add (verify ownership + add the domain)"
+        required: true
+        type: choice
+        options:
+          - get-token
+          - verify-add
+      domain:
+        description: "Domain to verify and add to the Workspace account"
+        required: true
+      admin_email:
+        description: "Workspace Super Admin to impersonate"
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  add-domain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Authenticate to Google Cloud (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: kornsour
+          workload_identity_provider: projects/230184516135/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run domain provisioning step
+        run: node scripts/add-workspace-domain.ts "${{ inputs.command }}" "${{ inputs.domain }}" "${{ inputs.admin_email }}"
