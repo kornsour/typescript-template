@@ -46,3 +46,4 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0015](./0015-legal-disclosures-scaffolding.md) | Legal-disclosure page scaffolding (ToS, Privacy, AUP, AI Disclosure, Cookies) | Accepted |
 | [0016](./0016-database-migration-automation.md) | Automated migration deploy, CI validation, and optional Neon preview branches | Accepted |
 | [0017](./0017-e2e-in-ci-for-dependabot.md) | Run E2E in CI for Dependabot PRs (auto-merge safety net) | Accepted |
+| [0018](./0018-reusable-ci-workflows.md) | Centralize CI & Dependabot automation in reusable workflows | Accepted |

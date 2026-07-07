@@ -159,7 +159,9 @@ creating billable/public resources.
   Dependabot PRs (or a feature PR labelled `run-e2e`) — see
   [ADR-0017](./docs/adr/0017-e2e-in-ci-for-dependabot.md). Keep the specs in sync
   with the app; CI enforces it for the flows they cover.
-- CI (`.github/workflows/ci.yml`) gates every PR on Biome, type-check, Vitest,
-  build, a schema/migration check, and a **lockfile-integrity guard**. Dependabot
-  patch/minor PRs auto-merge once these pass —
+- CI gates every PR on Biome, type-check, Vitest, build, a schema/migration
+  check, and a **lockfile-integrity guard**. These come from reusable workflows
+  in `kornsour/gh-automation` ([ADR-0018](./docs/adr/0018-reusable-ci-workflows.md)),
+  called from `.github/workflows/{ci,lockfile,dependabot-auto-merge}.yml`.
+  Dependabot patch/minor PRs auto-merge once these pass —
   see [docs/maintenance/dependabot.md](./docs/maintenance/dependabot.md).
