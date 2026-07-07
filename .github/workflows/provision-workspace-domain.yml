@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       command:
-        description: "get-token (fetch the DNS TXT verification value), verify-add (verify ownership + add the domain), or add-only (skip verification, e.g. if already verified via Search Console)"
+        description: "get-token, verify-add, add-only (skip verification), or status (check current state)"
         required: true
         type: choice
         options:
           - get-token
           - verify-add
           - add-only
+          - status
       domain:
         description: "Domain to verify and add to the Workspace account"
         required: true
