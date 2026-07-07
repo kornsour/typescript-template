@@ -11,6 +11,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   # No database is available in CI, so skip env validation at build time
   SKIP_ENV_VALIDATION: "1"
