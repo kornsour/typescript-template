@@ -1,0 +1,45 @@
+name: Provision support group
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: "App domain to create support@<domain> for"
+        required: true
+      admin_email:
+        description: "Workspace admin to impersonate (needs Groups Admin or Super Admin privileges)"
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  create-support-group:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Authenticate to Google Cloud (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: kornsour
+          workload_identity_provider: projects/230184516135/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create support group
+        run: node scripts/create-support-group.ts
+        env:
+          SUPPORT_GROUP_DOMAIN: ${{ inputs.domain }}
+          WORKSPACE_ADMIN_EMAIL: ${{ inputs.admin_email }}

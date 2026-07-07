@@ -52,6 +52,7 @@
     "@types/react-dom": "^19",
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
+    "google-auth-library": "^10.9.0",
     "tailwindcss": "^4",
     "typescript": "^6",
     "vitest": "^4.1.10"
