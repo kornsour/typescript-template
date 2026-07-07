@@ -19,6 +19,21 @@ env:
   SKIP_ENV_VALIDATION: "1"
 
 jobs:
+  lockfile:
+    name: Lockfile integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # PyYAML gives check-lockfile.sh a strict parser that rejects duplicate
+      # keys at every nesting level (the recurring Dependabot corruption). It's
+      # usually preinstalled on ubuntu runners; install to be deterministic.
+      - name: Ensure PyYAML
+        run: python3 -m pip install --quiet --disable-pip-version-check pyyaml || true
+
+      - name: Check pnpm-lock.yaml for duplicate keys
+        run: bash scripts/check-lockfile.sh
+
   check:
     name: Lint & format (Biome)
     runs-on: ubuntu-latest

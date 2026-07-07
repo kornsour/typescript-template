@@ -155,4 +155,11 @@ creating billable/public resources.
 
 - Unit: `*.test.ts(x)` alongside source or in `src/__tests__/`; `@/*` → `src/*`.
 - E2E: `e2e/*.spec.ts`; Playwright auto-starts the dev server (Chromium only).
-  Needs a local DB running for auth flows.
+  Needs a local DB running for auth flows. E2E also runs in CI, but **only** on
+  Dependabot PRs (or a feature PR labelled `run-e2e`) — see
+  [ADR-0017](./docs/adr/0017-e2e-in-ci-for-dependabot.md). Keep the specs in sync
+  with the app; CI enforces it for the flows they cover.
+- CI (`.github/workflows/ci.yml`) gates every PR on Biome, type-check, Vitest,
+  build, a schema/migration check, and a **lockfile-integrity guard**. Dependabot
+  patch/minor PRs auto-merge once these pass —
+  see [docs/maintenance/dependabot.md](./docs/maintenance/dependabot.md).
