@@ -25,15 +25,18 @@ Applies to both ecosystems Dependabot watches (npm + GitHub Actions).
 
 ### What gates a merge
 
-Required status checks on the `main` ruleset:
+CI, the lockfile guard, and auto-merge come from reusable workflows in
+[`kornsour/gh-automation`](https://github.com/kornsour/gh-automation)
+([ADR-0018](../adr/0018-reusable-ci-workflows.md)), so the check contexts are
+prefixed by the caller job name. Required status checks on the `main` ruleset:
 
-- **Lockfile integrity** — rejects duplicate-key `pnpm-lock.yaml` corruption
-  (see [pnpm-lockfile.md](./pnpm-lockfile.md); this is the recurring Dependabot
-  break, so it's the most important guard for unattended merges).
-- **Lint & format (Biome)**, **Type check**, **Unit tests (Vitest)**,
-  **Build**, **DB migration check**.
-- **E2E gate** — Playwright runs for real on Dependabot PRs (see
-  [ADR-0017](../adr/0017-e2e-in-ci-for-dependabot.md)).
+- **`lockfile / integrity`** — rejects duplicate-key `pnpm-lock.yaml` corruption
+  (see [pnpm-lockfile.md](./pnpm-lockfile.md); the recurring Dependabot break, so
+  the most important guard for unattended merges).
+- **`ci / Lint & format (Biome)`**, **`ci / Type check`**,
+  **`ci / Unit tests (Vitest)`**, **`ci / Build`**, **`ci / DB migration check`**.
+- **`E2E gate`** — Playwright runs for real on Dependabot PRs, from this repo's
+  standalone `e2e.yml` (see [ADR-0017](../adr/0017-e2e-in-ci-for-dependabot.md)).
 
 CodeQL (default code scanning) also runs on PRs but is intentionally **not**
 required — it scans our code, not the bumped dependency, and requiring it risks

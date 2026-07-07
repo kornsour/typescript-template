@@ -1,10 +1,5 @@
 name: Dependabot auto-merge
 
-# Auto-merges Dependabot PRs for patch and minor updates once all required
-# status checks pass. Major bumps are left for manual review — with E2E not
-# exhaustive, a breaking major could pass build + unit tests and still break
-# auth/billing at runtime. See ADR-0017 and docs/maintenance/dependabot.md.
-
 on:
   pull_request:
 
@@ -13,29 +8,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  auto-merge:
-    if: github.actor == 'dependabot[bot]'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Fetch Dependabot metadata
-        id: meta
-        uses: dependabot/fetch-metadata@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Enable auto-merge for patch & minor updates
-        if: >-
-          steps.meta.outputs.update-type == 'version-update:semver-patch' ||
-          steps.meta.outputs.update-type == 'version-update:semver-minor'
-        # gh pr merge --auto delegates to GitHub's native auto-merge: the PR
-        # merges itself only after every REQUIRED status check passes (CI jobs,
-        # the lockfile guard, and the E2E gate). Nothing merges on red.
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Note major updates left for manual review
-        if: steps.meta.outputs.update-type == 'version-update:semver-major'
-        run: |
-          echo "Major update (${{ steps.meta.outputs.dependency-names }}) — leaving for manual review."
+  automerge:
+    uses: kornsour/gh-automation/.github/workflows/dependabot-auto-merge.yml@main
+    secrets: inherit
