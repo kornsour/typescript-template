@@ -78,7 +78,7 @@ async function getVerificationToken(accessToken: string, domain: string) {
 
 async function verifyDomain(accessToken: string, domain: string, ownerEmail: string) {
 	const res = await fetch(
-		"https://www.googleapis.com/siteVerification/v1/webResource/insert?verificationMethod=DNS_TXT",
+		"https://www.googleapis.com/siteVerification/v1/webResource?verificationMethod=DNS_TXT",
 		{
 			method: "POST",
 			headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
