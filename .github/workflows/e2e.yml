@@ -2,6 +2,9 @@ name: E2E
 
 on:
   pull_request:
+    # `labeled` is included so adding the `run-e2e` label opts a feature PR into
+    # a real E2E run (not a default pull_request activity type).
+    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
 
 concurrency:
