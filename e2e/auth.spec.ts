@@ -18,6 +18,9 @@ test("sign up, reach dashboard, sign out, get redirected", async ({ page }) => {
 	await page.getByLabel("Email").fill(email);
 	await page.getByLabel("Password", { exact: true }).fill(password);
 	await page.getByLabel("Confirm password").fill(password);
+	// Sign-up requires accepting the current ToS/Privacy (enforced server-side in
+	// src/lib/auth.ts); the submit button stays disabled until this is ticked.
+	await page.getByRole("checkbox").check();
 	await page.getByRole("button", { name: "Create account" }).click();
 
 	await expect(page).toHaveURL(/\/dashboard/);
