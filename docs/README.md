@@ -7,9 +7,10 @@ Project documentation for this template and the apps built from it.
 - [`setup/`](./setup) — step-by-step guides to get an app running and
   provisioned: [getting started](./setup/getting-started.md),
   [database](./setup/database.md), [auth](./setup/auth-setup.md),
-  [Stripe](./setup/stripe.md), [deployment](./setup/deployment.md).
+  [Stripe](./setup/stripe.md), [deployment](./setup/deployment.md),
+  [Workspace support group](./setup/workspace-support-group.md).
 - [`cli-reference.md`](./cli-reference.md) — the CLIs used to operate the app
-  (vercel, neonctl, gcloud, gh, stripe, cf) and the commands agents actually need.
+  (vercel, neonctl, gcloud, gh, stripe, cf, aws) and the commands agents actually need.
 - [`security.md`](./security.md) — the security posture and pre-deploy checklist.
 - [`legal.md`](./legal.md) — the legal-disclosure pages (ToS, Privacy, AI
   Disclosure, etc.), what's scaffolded vs. what still needs an attorney, and a
