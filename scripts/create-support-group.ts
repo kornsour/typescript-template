@@ -95,18 +95,31 @@ async function main() {
 		}),
 	});
 
+	let justCreated = false;
 	if (createRes.status === 409) {
 		console.log(`Group ${groupEmail} already exists — skipping creation.`);
 	} else if (!createRes.ok) {
 		throw new Error(`Failed to create group ${groupEmail}: ${createRes.status} ${await createRes.text()}`);
 	} else {
+		justCreated = true;
 		console.log(`Created group ${groupEmail}`);
 	}
 
-	const memberRes = await directoryRequest(accessToken, `/groups/${groupEmail}/members`, {
-		method: "POST",
-		body: JSON.stringify({ email: ownerEmail, role: "OWNER" }),
-	});
+	// A freshly created group isn't always immediately visible to the members
+	// endpoint (Directory API propagation lag), so retry briefly in that case.
+	const addMember = () =>
+		directoryRequest(accessToken, `/groups/${groupEmail}/members`, {
+			method: "POST",
+			body: JSON.stringify({ email: ownerEmail, role: "OWNER" }),
+		});
+
+	const memberAttempts = justCreated ? 5 : 1;
+	let memberRes = await addMember();
+	for (let attempt = 2; memberRes.status === 404 && attempt <= memberAttempts; attempt++) {
+		console.log(`Group not yet visible to the members endpoint, retrying (${attempt}/${memberAttempts})…`);
+		await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+		memberRes = await addMember();
+	}
 
 	if (memberRes.status === 409) {
 		console.log(`${ownerEmail} is already a member of ${groupEmail}.`);
