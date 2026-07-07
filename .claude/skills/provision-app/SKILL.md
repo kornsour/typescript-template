@@ -34,6 +34,13 @@ neonctl branches create --project-id <id> --name preview
 ```
 Put the pooled connection string in Vercel as `DATABASE_URL` (step 5). The db
 client auto-selects the Neon driver from the `*.neon.tech` host — no code change.
+Migrations apply automatically at Vercel build/deploy time — see
+`docs/maintenance/database-migrations.md`.
+
+Optional: set the `NEON_PROJECT_ID` repo variable and `NEON_API_KEY` repo
+secret (`gh variable set` / `gh secret set`) to turn on
+`.github/workflows/neon-preview.yml` — a per-PR Neon branch that's migrated and
+schema-diffed automatically, deleted when the PR closes.
 
 ## 2. Google sign-in — gcloud + Cloud Console
 

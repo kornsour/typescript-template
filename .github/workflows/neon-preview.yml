@@ -21,7 +21,6 @@ concurrency:
 
 permissions:
   contents: read
-
 jobs:
   branch:
     name: Create branch + migrate

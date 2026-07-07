@@ -5,7 +5,7 @@
 #   - creates .env from .env.example (if missing)
 #   - generates BETTER_AUTH_SECRET
 #   - creates the local dev Postgres database and points DATABASE_URL at it
-#   - installs deps and pushes the schema
+#   - installs deps and applies committed migrations
 #
 # Idempotent: safe to re-run. External services (Neon/Google/Apple/Stripe) are
 # NOT provisioned here — see docs/setup/ and the `provision-app` Claude skill.
@@ -63,7 +63,7 @@ LOCAL_URL="postgresql://${USER}@localhost:5432/${DB_NAME}"
 node -e 'const fs=require("fs");const p=".env";let t=fs.readFileSync(p,"utf8");if(/localhost:5432/.test(t)){t=t.replace(/^DATABASE_URL=.*$/m,`DATABASE_URL="${process.argv[1]}"`);fs.writeFileSync(p,t);console.log("  ✓ pointed DATABASE_URL at local db")}else{console.log("  – DATABASE_URL looks non-local; left as-is")}' "$LOCAL_URL"
 
 say "6/6 · Schema"
-pnpm db:push && echo "  ✓ schema pushed"
+pnpm db:migrate && echo "  ✓ migrations applied"
 
 say "Done. Start the app with:  pnpm dev"
 echo "Next: add OAuth / Stripe keys to .env — see docs/setup/ or run the 'provision-app' skill."

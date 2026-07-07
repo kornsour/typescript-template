@@ -33,4 +33,20 @@ Neon **branch** per environment (e.g. `preview`) keeps data isolated.
 - Inspect data: `pnpm db:studio`.
 
 The template ships auth tables (`user`, `session`, `account`, `verification`) and
-billing tables (`customer`, `subscription`). Push or migrate before first run.
+billing tables (`customer`, `subscription`), plus a baseline migration
+(`drizzle/0000_init_schema.sql`) capturing them — `pnpm bootstrap` applies it
+via `pnpm db:migrate`.
+
+## Migration automation
+
+Schema changes are enforced and deployed automatically — see
+[`database-migrations.md`](../maintenance/database-migrations.md) and
+[ADR-0016](../adr/0016-database-migration-automation.md):
+
+- `pnpm build` applies pending migrations before `next build` on every Vercel
+  deploy (`pnpm db:deploy`, gated on the `VERCEL` env var).
+- CI fails a PR that changes `schema.ts` without a matching `drizzle/`
+  migration file.
+- Setting the `NEON_PROJECT_ID` repo variable (+ `NEON_API_KEY` secret) turns
+  on a per-PR Neon preview branch that gets migrated and schema-diffed
+  automatically (`.github/workflows/neon-preview.yml`).

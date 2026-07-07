@@ -70,6 +70,8 @@ pnpm db:push          # push schema (dev)
 pnpm db:generate      # generate a migration
 pnpm db:migrate       # run migrations (prod path)
 pnpm db:studio        # Drizzle Studio
+pnpm db:deploy        # applies pending migrations; runs automatically as part
+                      # of `pnpm build` on Vercel — see docs/maintenance/database-migrations.md
 ```
 
 ## Code Style
@@ -91,6 +93,14 @@ pnpm db:studio        # Drizzle Studio
   `DATABASE_URL` (Neon HTTP for `*.neon.tech`, else `pg`). Same code, both envs.
 - `db:push` for prototyping; `db:generate` + `db:migrate` for production. Never
   edit `drizzle/` migrations by hand.
+- **Migrations are automated end to end** (see [ADR-0016](./docs/adr/0016-database-migration-automation.md)
+  and `docs/maintenance/database-migrations.md`): `pnpm build` applies pending
+  migrations before `next build` on every Vercel deploy; CI fails a PR that
+  changes `schema.ts` without a matching migration file under `drizzle/`; an
+  optional per-PR Neon branch + migration workflow is available once
+  `NEON_PROJECT_ID` is set. A schema change still needs
+  `pnpm db:generate --name <name>` and a commit — the deploy step only applies
+  what's already committed.
 
 ## Auth
 

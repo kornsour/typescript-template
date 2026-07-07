@@ -106,9 +106,24 @@ jobs:
           # No real services in CI; SKIP_ENV_VALIDATION (set at workflow level)
           # bypasses validation, and these placeholders keep module-load code
           # (auth/db clients) from tripping on undefined values during the build.
+          # `pnpm build` runs db:deploy first, but scripts/db-deploy.sh only
+          # applies migrations on Vercel (VERCEL env var, unset here), so the
+          # placeholder DATABASE_URL below is never dialled.
           DATABASE_URL: "postgresql://user:pass@localhost:5432/build"
           BETTER_AUTH_SECRET: "ci-build-placeholder-secret-not-used-at-runtime"
           NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+
+  db-migration-check:
+    name: DB migration check
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Verify schema changes ship a migration
+        run: bash scripts/check-migration-added.sh "origin/${{ github.event.pull_request.base.ref }}"
 
   # E2E tests (Playwright) are intentionally not run in CI — they are heavy
   # (browser downloads + a running dev server). Run them locally with `pnpm e2e`.
