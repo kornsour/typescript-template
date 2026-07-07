@@ -109,8 +109,9 @@ async function main() {
 	const [command, domain, adminEmail] = process.argv.slice(2);
 	const serviceAccountEmail = process.env.WORKSPACE_SA_EMAIL || DEFAULT_SERVICE_ACCOUNT;
 
-	if (!domain || !adminEmail || (command !== "get-token" && command !== "verify-add")) {
-		console.error("Usage: node scripts/add-workspace-domain.ts <get-token|verify-add> <domain> <admin-email>");
+	const validCommands = ["get-token", "verify-add", "add-only"];
+	if (!command || !domain || !adminEmail || !validCommands.includes(command)) {
+		console.error(`Usage: node scripts/add-workspace-domain.ts <${validCommands.join("|")}> <domain> <admin-email>`);
 		process.exit(1);
 	}
 
@@ -118,6 +119,12 @@ async function main() {
 		const accessToken = await getDelegatedAccessToken(serviceAccountEmail, adminEmail, SITE_VERIFICATION_SCOPE);
 		const token = await getVerificationToken(accessToken, domain);
 		console.log(`Add this TXT record at the apex of ${domain}:\n\n  ${token}\n`);
+		return;
+	}
+
+	if (command === "add-only") {
+		const directoryToken = await getDelegatedAccessToken(serviceAccountEmail, adminEmail, DIRECTORY_DOMAIN_SCOPE);
+		await addWorkspaceDomain(directoryToken, domain);
 		return;
 	}
 
