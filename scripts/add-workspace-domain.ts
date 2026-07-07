@@ -102,14 +102,23 @@ async function addWorkspaceDomain(accessToken: string, domain: string) {
 		return;
 	}
 	if (!res.ok) throw new Error(`domains.insert failed: ${res.status} ${await res.text()}`);
-	console.log(`Added ${domain} to the Workspace account.`);
+	console.log(`Added ${domain} to the Workspace account: ${await res.text()}`);
+}
+
+async function getWorkspaceDomain(accessToken: string, domain: string) {
+	const res = await fetch(
+		`https://admin.googleapis.com/admin/directory/v1/customer/my_customer/domains/${domain}`,
+		{ headers: { Authorization: `Bearer ${accessToken}` } },
+	);
+	if (!res.ok) throw new Error(`domains.get failed: ${res.status} ${await res.text()}`);
+	console.log(await res.text());
 }
 
 async function main() {
 	const [command, domain, adminEmail] = process.argv.slice(2);
 	const serviceAccountEmail = process.env.WORKSPACE_SA_EMAIL || DEFAULT_SERVICE_ACCOUNT;
 
-	const validCommands = ["get-token", "verify-add", "add-only"];
+	const validCommands = ["get-token", "verify-add", "add-only", "status"];
 	if (!command || !domain || !adminEmail || !validCommands.includes(command)) {
 		console.error(`Usage: node scripts/add-workspace-domain.ts <${validCommands.join("|")}> <domain> <admin-email>`);
 		process.exit(1);
@@ -125,6 +134,12 @@ async function main() {
 	if (command === "add-only") {
 		const directoryToken = await getDelegatedAccessToken(serviceAccountEmail, adminEmail, DIRECTORY_DOMAIN_SCOPE);
 		await addWorkspaceDomain(directoryToken, domain);
+		return;
+	}
+
+	if (command === "status") {
+		const directoryToken = await getDelegatedAccessToken(serviceAccountEmail, adminEmail, DIRECTORY_DOMAIN_SCOPE);
+		await getWorkspaceDomain(directoryToken, domain);
 		return;
 	}
 
