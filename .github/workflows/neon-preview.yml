@@ -19,6 +19,8 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
+permissions:
+  contents: read
 jobs:
   branch:
     name: Create branch + migrate
