@@ -13,7 +13,7 @@ Project documentation for this template and the apps built from it.
 - [`security.md`](./security.md) — the security posture and pre-deploy checklist.
 - [`legal.md`](./legal.md) — the legal-disclosure pages (ToS, Privacy, AI
   Disclosure, etc.), what's scaffolded vs. what still needs an attorney, and a
-  pre-launch checklist. Not legal advice.
+  pre-launch checklist
 - [`adr/`](./adr) — Architecture Decision Records: the _why_ behind the stack
   and conventions. Read these before changing foundational tooling.
 - [`maintenance/`](./maintenance) — operational runbooks for keeping the

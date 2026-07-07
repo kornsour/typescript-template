@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LegalTemplateNotice } from "@/components/legal-template-notice";
 import { LEGAL_VERSION, legalConfig } from "@/content/legal/config";
 
 export const metadata: Metadata = { title: "AI Disclosure" };
 
 export default function AiDisclosurePage() {
 	const c = legalConfig;
+	const providerList =
+		c.aiSubprocessors.length > 0 ? c.aiSubprocessors.join(", ") : "none currently";
+
 	return (
 		<>
-			<LegalTemplateNotice />
 			<h1>AI Disclosure &amp; Transparency</h1>
 			<p>
 				Version {LEGAL_VERSION} · Effective {c.effectiveDate} · Last updated {c.lastUpdated}
@@ -29,17 +30,15 @@ export default function AiDisclosurePage() {
 
 			<h2>2. What AI features do here</h2>
 			<p>
-				<em>
-					[TODO: describe your actual AI feature(s) — e.g. "an in-app assistant that answers
-					questions about your data" or "AI-generated summaries of uploaded documents." Be specific:
-					generic language here is a compliance gap, not a feature.]
-				</em>
+				This application does not currently provide user-facing AI features in production. If and
+				when AI features are enabled, this page will be updated with feature-specific details before
+				or at launch of those features.
 			</p>
 
 			<h2>3. Who processes your input</h2>
 			<p>
 				When you use an AI feature, the text (and any other content) you submit to it is sent to the
-				following third-party AI provider(s) for processing: {c.aiSubprocessors.join(", ")}. See our{" "}
+				following third-party AI provider(s) for processing: {providerList}. See our{" "}
 				<Link href="/privacy">Privacy Policy</Link> for how we handle that data more generally, and
 				each provider's own privacy/data-use terms for how they handle it on their side (in
 				particular, whether your input is used to train their models — confirm this with your
@@ -92,31 +91,22 @@ export default function AiDisclosurePage() {
 				</li>
 			</ul>
 			<p>
-				<em>
-					[TODO: if this applies to you, this page and the Service need feature-specific
-					disclosures, a human-review/appeal path, and — for the regimes above — a documented impact
-					assessment. Get counsel involved before shipping that feature, not after.]
-				</em>
+				If you plan to use AI for consequential decisions, do not rely on this baseline disclosure
+				alone; implement feature-specific controls, human review, and any required assessments
+				before deployment.
 			</p>
 
 			<h2>6. Synthetic content</h2>
 			<p>
-				<em>
-					[TODO: if the Service generates images, audio, or video (not just text), some
-					jurisdictions require labeling synthetic media as AI-generated (e.g. California's AI
-					Transparency Act, SB 942, for large-scale generative-AI providers; various deepfake
-					statutes for political or sexual content). Confirm applicability and add
-					provenance/labeling here and in-product if so.]
-				</em>
+				This service does not currently generate synthetic images, audio, or video for users. If
+				that changes, we will update this disclosure and add any required in-product labeling.
 			</p>
 
 			<h2>7. Your choices</h2>
 			<p>
-				<em>
-					[TODO: describe any user controls you actually offer — e.g. opting out of an AI feature,
-					requesting a human instead, or requesting that your input not be used for model
-					training/improvement by your AI provider, if your provider agreement allows that.]
-				</em>
+				Because no user-facing AI features are currently enabled, there are no AI-specific controls
+				to manage at this time. If AI features are enabled in the future, this section will describe
+				your available controls.
 			</p>
 
 			<h2>8. Contact</h2>

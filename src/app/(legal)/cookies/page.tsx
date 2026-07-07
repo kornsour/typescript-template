@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { LegalTemplateNotice } from "@/components/legal-template-notice";
 import { LEGAL_VERSION, legalConfig } from "@/content/legal/config";
 
 export const metadata: Metadata = { title: "Cookie Policy" };
@@ -8,7 +7,6 @@ export default function CookiesPage() {
 	const c = legalConfig;
 	return (
 		<>
-			<LegalTemplateNotice />
 			<h1>Cookie Policy</h1>
 			<p>
 				Version {LEGAL_VERSION} · Effective {c.effectiveDate} · Last updated {c.lastUpdated}
@@ -25,14 +23,10 @@ export default function CookiesPage() {
 
 			<h2>2. If you add analytics, ads, or other tracking</h2>
 			<p>
-				<em>
-					[TODO: this template does not ship analytics, advertising, or other non-essential
-					cookies/trackers. If you add one (e.g. product analytics, ad pixels, session replay), you
-					must: list it here with its purpose and duration, and — for EU/UK visitors and
-					California's opt-out-of-sale/sharing rules — upgrade{" "}
-					<code>src/components/cookie-banner.tsx</code> from a notice into a real accept/reject
-					consent control before it loads. Don't fire non-essential trackers before consent.]
-				</em>
+				We do not currently use analytics, advertising, or other non-essential trackers. If we add
+				any non-essential cookies in the future, we will update this policy to list each cookie's
+				purpose and duration and implement any legally required consent controls before those
+				cookies are set.
 			</p>
 
 			<h2>3. Managing cookies</h2>
