@@ -1,5 +1,12 @@
 # Legal disclosures
 
+## Status in this repository
+
+The legal pages currently in `src/app/(legal)/` and values in
+`src/content/legal/config.ts` are the **official v1 baseline** for this app and
+were reviewed by counsel as an initial launch set. They should be treated as
+live policy text, not placeholders.
+
 ## What's scaffolded
 
 | Page                  | Route             | Covers                                                        |
@@ -18,10 +25,10 @@ Plus:
 - `NEXT_PUBLIC_AI_FEATURES_ENABLED` — gates the AI Disclosure footer link; flip on once you ship an AI feature.
 - `<CookieBanner>` — a notice, not a consent manager (see "Cookies" below).
 
-## Before you launch
+## For apps copied from this template
 
-1. Fill in every `TODO`/bracketed placeholder in `src/content/legal/config.ts` and the pages themselves (especially `ai-disclosure`'s "what the feature actually does" section — generic AI-disclosure language is itself a compliance gap).
-2. Set a real `effectiveDate`/`lastUpdated` in the config, and get all five pages reviewed by an attorney licensed in Michigan (or wherever you incorporate) — and in any other jurisdiction where you have a meaningful user base.
+1. Replace `src/content/legal/config.ts` with your own entity name, address/contact channel, governing-law venue, dates, and AI provider list.
+2. Ensure all five pages are reviewed by counsel for your own entity and jurisdictional footprint before launch.
 3. Decide whether you need a **GDPR/UK GDPR Article 27 representative** — relevant if you have a meaningful EU/UK user base, since a public deployment doesn't geofence itself.
 4. Decide whether you want a mandatory-arbitration / class-action-waiver clause in the ToS. Deliberately left out as a business decision, not a default.
 5. If you serve B2B customers who ask for a **Data Processing Addendum (DPA)** (common for anyone processing EU personal data as a processor), you'll need one — this template doesn't include a DPA template; that's a negotiated contract, not boilerplate.
