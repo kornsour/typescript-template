@@ -18,7 +18,9 @@ Project documentation for this template and the apps built from it.
 - [`adr/`](./adr) — Architecture Decision Records: the _why_ behind the stack
   and conventions. Read these before changing foundational tooling.
 - [`maintenance/`](./maintenance) — operational runbooks for keeping the
-  template healthy (dependency updates, lockfile recovery, etc.).
+  template healthy: [database migrations](./maintenance/database-migrations.md),
+  [pnpm lockfile](./maintenance/pnpm-lockfile.md), and
+  [Dependabot auto-merge](./maintenance/dependabot.md).
 
 ## Conventions
 

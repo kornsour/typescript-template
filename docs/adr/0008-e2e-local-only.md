@@ -1,6 +1,6 @@
 # ADR-0008: Run Playwright E2E locally, not in CI
 
-- Status: Accepted
+- Status: Superseded by [ADR-0017](./0017-e2e-in-ci-for-dependabot.md)
 - Date: 2026-06-19
 
 ## Context

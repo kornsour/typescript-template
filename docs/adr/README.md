@@ -36,7 +36,7 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0005](./0005-data-layer-drizzle-neon.md) | Use Drizzle ORM with Neon serverless Postgres | Accepted |
 | [0006](./0006-type-safe-env.md) | Validate environment variables at the boundary | Accepted |
 | [0007](./0007-server-actions-next-safe-action.md) | Use next-safe-action for Server Actions | Accepted |
-| [0008](./0008-e2e-local-only.md) | Run Playwright E2E locally, not in CI | Accepted |
+| [0008](./0008-e2e-local-only.md) | Run Playwright E2E locally, not in CI | Superseded by ADR-0017 |
 | [0009](./0009-security-headers.md) | Set baseline HTTP security headers | Accepted |
 | [0010](./0010-unit-testing-vitest.md) | Unit test with Vitest in a Node environment | Accepted |
 | [0011](./0011-local-postgres-neon-dual-driver.md) | Local Postgres in dev, Neon in prod (dual driver) | Accepted |
@@ -45,3 +45,4 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0014](./0014-content-security-policy.md) | Add a nonce-based Content-Security-Policy in middleware | Accepted |
 | [0015](./0015-legal-disclosures-scaffolding.md) | Legal-disclosure page scaffolding (ToS, Privacy, AUP, AI Disclosure, Cookies) | Accepted |
 | [0016](./0016-database-migration-automation.md) | Automated migration deploy, CI validation, and optional Neon preview branches | Accepted |
+| [0017](./0017-e2e-in-ci-for-dependabot.md) | Run E2E in CI for Dependabot PRs (auto-merge safety net) | Accepted |
