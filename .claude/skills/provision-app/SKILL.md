@@ -1,6 +1,6 @@
 ---
 name: provision-app
-description: Provision the external resources a new app from this template needs — Neon Postgres, Google/Apple OAuth, Stripe billing, Vercel project + env, a custom domain, and GitHub repo/secrets — using the vercel, neonctl, gcloud, gh, stripe, and cf (Cloudflare) CLIs. Use when setting up a fresh app, wiring a new environment, or filling in .env for auth/billing/deploy.
+description: Provision the external resources a new app from this template needs — Neon Postgres, Google/Apple OAuth, Stripe billing, Vercel project + env, a custom domain, a support@ Google Workspace group, and GitHub repo/secrets — using the vercel, neonctl, gcloud, gh, stripe, cf, and aws CLIs. Use when setting up a fresh app, wiring a new environment, or filling in .env for auth/billing/deploy.
 ---
 
 # Provision a new app
@@ -111,6 +111,17 @@ vercel domains inspect <domain>         # poll until it shows a valid configurat
 Use the exact record type/target `vercel domains add` prints (an apex domain
 needs an `A` record, not `CNAME`). Keep the Cloudflare record **DNS only**
 (`proxied: false`) until Vercel confirms the cert. Details: `docs/cli-reference.md`.
+
+## 6. Support email — Google Workspace group (optional)
+
+Gives the app a `support@<domain>` inbox instead of exposing a personal
+address. Alternates automated `gh workflow run` dispatches with a handful of
+required manual Admin Console clicks (domain verification, Gmail activation,
+DKIM generation — none of these have a public API). Full checklist, exact
+commands, and known gotchas (a real, unresolved Google-side bug in domain
+verification, worked around here) are in
+[`docs/setup/workspace-support-group.md`](../../../docs/setup/workspace-support-group.md) —
+walk the user through that checklist rather than re-deriving the steps.
 
 ## After provisioning
 

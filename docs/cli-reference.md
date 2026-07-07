@@ -4,10 +4,10 @@ The command-line tools used to operate an app built from this template, and the
 commands you actually reach for. Agents: prefer these CLIs over dashboards where
 a CLI path exists; the `provision-app` skill orchestrates them end-to-end.
 
-Install (macOS): `brew install vercel-cli neonctl gh stripe/stripe-cli/stripe`;
-`gcloud` via the Google Cloud SDK installer; `npm install -g cf` for Cloudflare.
-Check with `--version`, or run `pnpm preflight` to check all of them (plus
-Node/pnpm/Postgres/`.env`) at once.
+Install (macOS): `brew install vercel-cli neonctl gh stripe/stripe-cli/stripe
+awscli`; `gcloud` via the Google Cloud SDK installer; `npm install -g cf` for
+Cloudflare. Check with `--version`, or run `pnpm preflight` to check all of
+them (plus Node/pnpm/Postgres/`.env`) at once.
 
 ## vercel — hosting, env, deploys
 | Task | Command |
@@ -65,6 +65,26 @@ record **DNS only** (`proxied: false`, grey-cloud) so Vercel can issue/renew the
 TLS cert directly; flip on the Cloudflare proxy only after `vercel domains
 inspect <domain>` shows a valid configuration, and set Cloudflare's SSL/TLS mode
 to Full (strict) if you do.
+
+## aws — Route53 (DNS for domains hosted there)
+| Task | Command |
+|------|---------|
+| Identity check | `aws sts get-caller-identity` |
+| Find a hosted zone | `aws route53 list-hosted-zones-by-name --dns-name <domain>` |
+| List records | `aws route53 list-resource-record-sets --hosted-zone-id <zone-id>` |
+| Upsert a record | `aws route53 change-resource-record-sets --hosted-zone-id <zone-id> --change-batch file://<path>.json` (see `docs/setup/workspace-support-group.md` for TXT/MX examples) |
+
+No credentials are pre-configured — run `aws configure` (or `aws sso login`)
+yourself; don't paste keys into an agent session. Prefer a scoped IAM
+user/role over the account root credentials.
+
+## Google Workspace — support@ groups, domain verification
+
+Not a CLI — a pair of `gh workflow run` dispatches
+(`provision-workspace-domain.yml`, `provision-support-group.yml`) that
+authenticate via keyless Workload Identity Federation. Several steps require
+manual Admin Console clicks (no public API exists for them). Full checklist:
+[`docs/setup/workspace-support-group.md`](./setup/workspace-support-group.md).
 
 ## Not a CLI, but agents should know
 - **`/security-review`** — run before shipping (see `security.md`).
