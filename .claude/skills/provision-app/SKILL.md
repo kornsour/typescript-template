@@ -91,6 +91,11 @@ Stripe dashboard and use its signing secret.
 
 ```bash
 gh repo create <owner>/<app> --private --source . --push   # if not already on GitHub
+# Dependabot labels: a generated repo copies .github/dependabot.yml but NOT the
+# template's labels, so create the ones the config references or Dependabot errors
+# ("labels could not be found") on its first run.
+gh label create dependencies -R <owner>/<app> --color 0366d6 --description "Dependency updates" --force
+gh label create ci           -R <owner>/<app> --color fbca04 --description "CI / build configuration" --force
 vercel link                                                 # link this dir to a Vercel project
 # Push each secret to Vercel (repeat per var, per environment):
 vercel env add DATABASE_URL production      # paste the Neon string
