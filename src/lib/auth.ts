@@ -9,6 +9,14 @@ import { env } from "@/env";
 import { sendEmail } from "@/lib/email";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, passwordError } from "@/lib/password";
 
+/**
+ * Lifetime of reset-password and email-verification links. Pinned explicitly (a
+ * single source of truth) so the value in the email copy can't drift from the
+ * value better-auth enforces.
+ */
+const LINK_EXPIRY_SECONDS = 60 * 60;
+const LINK_EXPIRY_LABEL = "1 hour";
+
 /** Only enable a social provider when both its id and secret are present. */
 const socialProviders = {
 	...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -44,26 +52,43 @@ export const auth = betterAuth({
 		// Only block sign-in on unverified email in production, so local dev and
 		// e2e stay frictionless. The verification email is still sent below.
 		requireEmailVerification: env.NODE_ENV === "production",
+		resetPasswordTokenExpiresIn: LINK_EXPIRY_SECONDS,
 		sendResetPassword: async ({ user, url }) => {
 			await sendEmail({
 				to: user.email,
 				subject: "Reset your password",
-				text: `Reset your password by opening this link:\n\n${url}\n\nIf you didn't request this, you can ignore this email.`,
+				text: `Reset your password by opening this link:\n\n${url}\n\nThis link expires in ${LINK_EXPIRY_LABEL}. If you didn't request this, you can ignore this email.`,
 			});
 		},
 	},
 	emailVerification: {
 		sendOnSignUp: true,
 		autoSignInAfterVerification: true,
+		expiresIn: LINK_EXPIRY_SECONDS,
 		sendVerificationEmail: async ({ user, url }) => {
 			await sendEmail({
 				to: user.email,
 				subject: "Verify your email",
-				text: `Confirm your email address by opening this link:\n\n${url}`,
+				text: `Confirm your email address by opening this link:\n\n${url}\n\nThis link expires in ${LINK_EXPIRY_LABEL}.`,
 			});
 		},
 	},
 	socialProviders,
+	account: {
+		accountLinking: {
+			// Let a social sign-in attach to an existing account with the same email
+			// (e.g. someone who signed up with a password can also "Continue with
+			// Google" and land in the same account, and Google/Apple cross-link too).
+			enabled: true,
+			// Trust whichever social providers are configured: their email is
+			// provider-verified, so it's safe to link on an email match. We keep
+			// `requireLocalEmailVerified` at its secure default (true) — the
+			// pre-existing password account must have verified its own email before a
+			// social login can link into it, which blocks account pre-hijacking (an
+			// attacker pre-creating a password account for someone else's address).
+			trustedProviders: Object.keys(socialProviders),
+		},
+	},
 	// better-auth's built-in limiter; auth routes get stricter per-path limits.
 	rateLimit: {
 		enabled: true,

@@ -33,6 +33,13 @@ Use **better-auth**, self-hosted, storing `user`/`session`/`account`/
 - **Sessions:** cookie-based; read server-side with `getSession()`/
   `requireUser()` in `src/lib/auth/session.ts`. `src/proxy.ts` does an
   optimistic cookie redirect only; pages/actions still call `requireUser()`.
+- **Account linking:** `account.accountLinking` is enabled with the configured
+  social providers as `trustedProviders`, so a single person who signs in via
+  password, Google, or Apple lands in **one** account when the emails match
+  (rather than getting a duplicate per method). Linking rides on the provider's
+  verified email, and `requireLocalEmailVerified` stays at its secure default —
+  a pre-existing password account must have verified its own email before a
+  social login can attach, which blocks account pre-hijacking.
 - **Rate limiting:** better-auth's limiter is enabled (stricter on auth paths).
 - **Email:** verification + password-reset go through the pluggable sender in
   `src/lib/email` (console in dev, AWS SES when `AWS_REGION` is set). Email verification is
