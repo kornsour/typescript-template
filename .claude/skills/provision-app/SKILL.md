@@ -47,7 +47,15 @@ schema-diffed automatically, deleted when the PR closes.
 The OAuth **consent screen** and **credential creation** are Console UI (gcloud
 can't fully create OAuth client IDs). Steps:
 1. `gcloud projects create <gcp-project>` (or reuse one) and set it active:
-   `gcloud config set project <gcp-project>`.
+   `gcloud config set project <gcp-project>`. **If you have a Google Cloud
+   Organization, create the project under it from the start**
+   (`gcloud projects create <gcp-project> --organization=<org-id>`). Moving a
+   solo-owned project into an org later hits Google's anti-hijack safeguards
+   (`SOLO_MUST_INVITE_OWNERS` on granting a second owner,
+   `SOLO_REQUIRE_TOS_ACCEPTOR` on removing the original one) — there is no API
+   workaround; ownership must transfer through the Cloud Console's
+   invite-and-accept flow (with a step-up/passkey challenge) before the move
+   is even possible. Cheaper to avoid than to fix.
 2. In Console → APIs & Services → OAuth consent screen: configure (External),
    add scopes `email`, `profile`, `openid`.
 3. Credentials → Create OAuth client ID → Web application. Authorized redirect URI:
