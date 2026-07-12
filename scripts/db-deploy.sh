@@ -32,7 +32,12 @@ if [ -z "${VERCEL:-}" ] && [ "${FORCE_DB_MIGRATIONS:-}" != "1" ]; then
 	exit 0
 fi
 
-if [ -f .env ]; then
+# Only source a local .env OUTSIDE Vercel (the FORCE_DB_MIGRATIONS local-test
+# path). On Vercel, env vars are injected into the process directly — sourcing a
+# stray uploaded .env would let its development DATABASE_URL (localhost) override
+# the platform-injected one, and migrations would fail against 127.0.0.1:5432.
+# .vercelignore also keeps .env* out of the upload; this is defense in depth.
+if [ -z "${VERCEL:-}" ] && [ -f .env ]; then
 	# shellcheck disable=SC1091
 	set -a && source .env && set +a
 fi
@@ -43,4 +48,6 @@ if [ -z "${DATABASE_URL:-}" ]; then
 fi
 
 echo "→ Applying pending DB migrations"
-pnpm exec drizzle-kit migrate
+# Explicit migrator (scripts/db-migrate.ts): sets managed-Postgres TLS and
+# prints the real error on failure, instead of drizzle-kit's opaque exit 1.
+node scripts/db-migrate.mts
