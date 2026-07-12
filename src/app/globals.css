@@ -1,22 +1,51 @@
 @import "tailwindcss";
 
-:root {
-	--background: #ffffff;
-	--foreground: #171717;
-}
+/* Design-system theme (@kornorg/design-system) is imported in layout.tsx — it
+   provides the token values (--background, --primary, …), the compiled
+   component styles, and the Geist @font-face faces. Here we (1) expose those
+   tokens to *this app's* Tailwind so app-authored semantic utilities like
+   `bg-card` / `text-muted-foreground` compile, and (2) point Tailwind's `dark:`
+   variant at the same `.dark` class the theme switches on, so app markup and
+   the design-system stay in lockstep. Swap the imported feel in layout.tsx to
+   restyle the whole app. */
 
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
+	--color-warning: var(--warning);
+	--color-warning-foreground: var(--warning-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
 	--font-sans: var(--font-geist-sans);
 	--font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
+/* Dark mode is a `.dark` class on <html>, set before paint by the theme-init
+   script in layout.tsx to follow the OS preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+	color-scheme: light;
+}
+.dark {
+	color-scheme: dark;
 }
 
 body {
@@ -26,7 +55,8 @@ body {
 }
 
 /* Hand-rolled prose styling for the legal pages (src/app/(legal)/) — avoids
-   pulling in @tailwindcss/typography for five static pages. */
+   pulling in @tailwindcss/typography for five static pages. On semantic tokens
+   so it tracks the active feel. */
 .legal-prose h1 {
 	@apply text-3xl font-semibold tracking-tight;
 }
@@ -37,14 +67,14 @@ body {
 	@apply mt-6 text-base font-semibold;
 }
 .legal-prose p {
-	@apply mt-3 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300;
+	@apply mt-3 text-sm leading-relaxed text-muted-foreground;
 }
 .legal-prose ul {
-	@apply mt-3 list-disc space-y-1 pl-5 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300;
+	@apply mt-3 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted-foreground;
 }
 .legal-prose a {
-	@apply underline underline-offset-2 hover:text-zinc-950 dark:hover:text-white;
+	@apply underline underline-offset-2 hover:text-foreground;
 }
 .legal-prose strong {
-	@apply font-semibold text-zinc-900 dark:text-zinc-100;
+	@apply font-semibold text-foreground;
 }

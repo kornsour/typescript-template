@@ -1,3 +1,4 @@
+import { Card } from "@kornorg/design-system";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { BillingButton } from "@/components/billing-button";
@@ -26,30 +27,30 @@ export default async function DashboardPage() {
 				<SignOutButton />
 			</div>
 
-			<div className="rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
-				<p className="text-sm text-zinc-500">Signed in as</p>
+			<Card className="p-6">
+				<p className="text-sm text-muted-foreground">Signed in as</p>
 				<p className="text-lg font-medium">{user.name}</p>
-				<p className="text-sm text-zinc-500">{user.email}</p>
+				<p className="text-sm text-muted-foreground">{user.email}</p>
 				{!user.emailVerified && (
-					<p className="mt-3 text-xs text-amber-600">
+					<p className="mt-3 text-xs text-warning">
 						Your email isn't verified yet — check your inbox (or the dev server console).
 					</p>
 				)}
-			</div>
+			</Card>
 
 			{isBillingEnabled && (
-				<div className="flex items-center justify-between rounded-xl border border-zinc-200 p-6 dark:border-zinc-800">
+				<Card className="flex items-center justify-between p-6">
 					<div>
 						<p className="text-sm font-medium">Billing</p>
-						<p className="text-sm text-zinc-500">
+						<p className="text-sm text-muted-foreground">
 							{activeSub ? `Plan active (${activeSub.status})` : "No active subscription"}
 						</p>
 					</div>
 					<BillingButton hasSubscription={Boolean(activeSub)} />
-				</div>
+				</Card>
 			)}
 
-			<p className="text-sm text-zinc-500">
+			<p className="text-sm text-muted-foreground">
 				This page is protected by <code className="font-mono">requireUser()</code>. Replace it with
 				your app.
 			</p>

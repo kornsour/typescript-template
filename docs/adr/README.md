@@ -48,3 +48,4 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0017](./0017-e2e-in-ci-for-dependabot.md) | Run E2E in CI for Dependabot PRs (auto-merge safety net) | Accepted |
 | [0018](./0018-reusable-ci-workflows.md) | Centralize CI & Dependabot automation in reusable workflows | Accepted |
 | [0019](./0019-subdomain-default-domains.md) | New apps default to a subdomain of one shared zone | Accepted |
+| [0020](./0020-design-system.md) | UI on the @kornorg/design-system package | Accepted |

@@ -1,11 +1,9 @@
 "use client";
 
+import { Button, Input } from "@kornorg/design-system";
 import Link from "next/link";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
-
-const inputClass =
-	"rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100";
 
 export default function ForgotPasswordPage() {
 	const [email, setEmail] = useState("");
@@ -25,13 +23,10 @@ export default function ForgotPasswordPage() {
 		return (
 			<div className="flex flex-col gap-4">
 				<h1 className="text-xl font-semibold tracking-tight">Check your email</h1>
-				<p className="text-sm text-zinc-500">
+				<p className="text-sm text-muted-foreground">
 					If an account exists for {email}, a password-reset link is on its way.
 				</p>
-				<Link
-					href="/sign-in"
-					className="text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
-				>
+				<Link href="/sign-in" className="text-sm font-medium hover:underline">
 					Back to sign in
 				</Link>
 			</div>
@@ -41,23 +36,20 @@ export default function ForgotPasswordPage() {
 	return (
 		<form onSubmit={onSubmit} className="flex flex-col gap-4">
 			<h1 className="text-xl font-semibold tracking-tight">Reset your password</h1>
-			<p className="text-sm text-zinc-500">Enter your email and we'll send you a reset link.</p>
-			<input
+			<p className="text-sm text-muted-foreground">
+				Enter your email and we'll send you a reset link.
+			</p>
+			<Input
 				type="email"
-				className={inputClass}
 				value={email}
 				onChange={(e) => setEmail(e.target.value)}
 				placeholder="you@example.com"
 				autoComplete="email"
 				required
 			/>
-			<button
-				type="submit"
-				disabled={pending}
-				className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-			>
+			<Button type="submit" disabled={pending}>
 				{pending ? "Sending…" : "Send reset link"}
-			</button>
+			</Button>
 		</form>
 	);
 }

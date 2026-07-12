@@ -1,5 +1,6 @@
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
+import { THEME_INIT_CSP_HASH } from "@/lib/theme-init";
 
 /**
  * Next.js 16 "proxy" (formerly "middleware"). Two jobs:
@@ -18,9 +19,12 @@ const PROTECTED_PREFIXES = ["/dashboard"];
  */
 function buildCsp(nonce: string): string {
 	const dev = process.env.NODE_ENV !== "production";
+	// The static theme-init inline script (src/lib/theme-init.ts) is allowlisted
+	// by its hash, so the root layout needs no per-request nonce and stays fully
+	// static. Hashes stay valid alongside 'strict-dynamic'.
 	const scriptSrc = dev
 		? `'self' 'unsafe-eval' 'unsafe-inline'`
-		: `'self' 'nonce-${nonce}' 'strict-dynamic'`;
+		: `'self' 'nonce-${nonce}' '${THEME_INIT_CSP_HASH}' 'strict-dynamic'`;
 	return [
 		`default-src 'self'`,
 		`script-src ${scriptSrc} https://js.stripe.com`,

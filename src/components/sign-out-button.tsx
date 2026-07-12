@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@kornorg/design-system";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { signOut } from "@/lib/auth-client";
@@ -16,13 +17,8 @@ export function SignOutButton() {
 	}
 
 	return (
-		<button
-			type="button"
-			onClick={onClick}
-			disabled={pending}
-			className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-		>
+		<Button type="button" variant="outline" size="sm" onClick={onClick} disabled={pending}>
 			{pending ? "Signing out…" : "Sign out"}
-		</button>
+		</Button>
 	);
 }

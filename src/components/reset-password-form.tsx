@@ -1,13 +1,11 @@
 "use client";
 
+import { Button, Input } from "@kornorg/design-system";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { MIN_PASSWORD_LENGTH, passwordError } from "@/lib/password";
-
-const inputClass =
-	"rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100";
 
 /**
  * Reset-password form. The token is read on the server (from the page's
@@ -26,11 +24,8 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
 	if (!token) {
 		return (
 			<div className="flex flex-col gap-4">
-				<p className="text-sm text-red-600">This reset link is invalid or has expired.</p>
-				<Link
-					href="/forgot-password"
-					className="text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-100"
-				>
+				<p className="text-sm text-destructive">This reset link is invalid or has expired.</p>
+				<Link href="/forgot-password" className="text-sm font-medium hover:underline">
 					Request a new link
 				</Link>
 			</div>
@@ -60,9 +55,8 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
 
 	return (
 		<form onSubmit={onSubmit} className="flex flex-col gap-4">
-			<input
+			<Input
 				type="password"
-				className={inputClass}
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				placeholder="New password"
@@ -70,24 +64,19 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
 				minLength={MIN_PASSWORD_LENGTH}
 				required
 			/>
-			<input
+			<Input
 				type="password"
-				className={inputClass}
 				value={confirm}
 				onChange={(e) => setConfirm(e.target.value)}
 				placeholder="Confirm new password"
 				autoComplete="new-password"
 				required
 			/>
-			{error && <p className="text-sm text-red-600">{error}</p>}
-			<button
-				type="submit"
-				disabled={pending}
-				className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-			>
+			{error && <p className="text-sm text-destructive">{error}</p>}
+			<Button type="submit" disabled={pending}>
 				{pending ? "Saving…" : "Reset password"}
-			</button>
-			<Link href="/sign-in" className="text-center text-sm text-zinc-500 hover:underline">
+			</Button>
+			<Link href="/sign-in" className="text-center text-sm text-muted-foreground hover:underline">
 				Back to sign in
 			</Link>
 		</form>

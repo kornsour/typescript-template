@@ -2,11 +2,11 @@ import Link from "next/link";
 import { legalConfig } from "@/content/legal/config";
 import { env } from "@/env";
 
-const linkClass = "hover:text-zinc-900 hover:underline dark:hover:text-zinc-100";
+const linkClass = "hover:text-foreground hover:underline";
 
 export function SiteFooter() {
 	return (
-		<footer className="border-t border-zinc-200 px-6 py-6 pb-20 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+		<footer className="border-t border-border px-6 py-6 pb-20 text-xs text-muted-foreground">
 			<div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-x-4 gap-y-2">
 				<span>
 					© {new Date().getFullYear()} {legalConfig.companyName}
