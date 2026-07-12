@@ -19,7 +19,7 @@ posture in `docs/security.md`, and operational runbooks in `docs/maintenance/`.
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router, Turbopack) · **Language**: TypeScript (strict)
-- **Styling**: Tailwind CSS v4 · **Lint/format**: Biome (not ESLint/Prettier)
+- **Styling**: Tailwind CSS v4 + `@kornorg/design-system` (components, tokens, feels — [ADR-0020](./docs/adr/0020-design-system.md)) · **Lint/format**: Biome (not ESLint/Prettier)
 - **Unit**: Vitest · **E2E**: Playwright (local only, [ADR-0008](./docs/adr/0008-e2e-local-only.md))
 - **ORM**: Drizzle · **DB**: local Postgres in dev, Neon in prod ([ADR-0011](./docs/adr/0011-local-postgres-neon-dual-driver.md))
 - **Auth**: better-auth, self-hosted ([ADR-0012](./docs/adr/0012-auth-better-auth.md))

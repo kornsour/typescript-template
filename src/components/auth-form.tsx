@@ -1,5 +1,6 @@
 "use client";
 
+import { Button, Checkbox, Input, Label } from "@kornorg/design-system";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -11,16 +12,13 @@ import { MIN_PASSWORD_LENGTH, passwordError, passwordScore, STRENGTH_LABELS } fr
 const AFTER_AUTH = "/dashboard";
 const BAR_COLORS = ["bg-red-500", "bg-red-500", "bg-amber-500", "bg-lime-500", "bg-green-600"];
 
-const inputClass =
-	"rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:focus:border-zinc-100";
-
 function StrengthBar({ score }: { score: number }) {
 	return (
 		<div className="mt-1 flex gap-1" aria-hidden>
 			{[0, 1, 2, 3].map((i) => (
 				<div
 					key={i}
-					className={`h-1 flex-1 rounded-full ${i < score ? BAR_COLORS[score] : "bg-black/10 dark:bg-white/10"}`}
+					className={`h-1 flex-1 rounded-full ${i < score ? BAR_COLORS[score] : "bg-muted"}`}
 				/>
 			))}
 		</div>
@@ -39,28 +37,20 @@ function OAuthButtons({ next }: { next: string }) {
 		<div className="flex flex-col gap-3">
 			<div className="flex flex-col gap-2">
 				{env.NEXT_PUBLIC_GOOGLE_ENABLED && (
-					<button
-						type="button"
-						onClick={() => social("google")}
-						className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-					>
+					<Button type="button" variant="outline" onClick={() => social("google")}>
 						Continue with Google
-					</button>
+					</Button>
 				)}
 				{env.NEXT_PUBLIC_APPLE_ENABLED && (
-					<button
-						type="button"
-						onClick={() => social("apple")}
-						className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-					>
+					<Button type="button" variant="outline" onClick={() => social("apple")}>
 						Continue with Apple
-					</button>
+					</Button>
 				)}
 			</div>
-			<div className="flex items-center gap-3 text-xs text-zinc-500">
-				<span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+			<div className="flex items-center gap-3 text-xs text-muted-foreground">
+				<span className="h-px flex-1 bg-border" />
 				or
-				<span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+				<span className="h-px flex-1 bg-border" />
 			</div>
 		</div>
 	);
@@ -129,13 +119,10 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 			<form onSubmit={onSubmit} className="flex flex-col gap-4">
 				{isSignUp && (
 					<div className="flex flex-col gap-1.5">
-						<label htmlFor="name" className="text-sm font-medium">
-							Name
-						</label>
-						<input
+						<Label htmlFor="name">Name</Label>
+						<Input
 							id="name"
 							name="name"
-							className={inputClass}
 							value={name}
 							onChange={(e) => setName(e.target.value)}
 							autoComplete="name"
@@ -144,14 +131,11 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 					</div>
 				)}
 				<div className="flex flex-col gap-1.5">
-					<label htmlFor="email" className="text-sm font-medium">
-						Email
-					</label>
-					<input
+					<Label htmlFor="email">Email</Label>
+					<Input
 						id="email"
 						name="email"
 						type="email"
-						className={inputClass}
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 						autoComplete="email"
@@ -160,23 +144,20 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 				</div>
 				<div className="flex flex-col gap-1.5">
 					<div className="flex items-center justify-between">
-						<label htmlFor="password" className="text-sm font-medium">
-							Password
-						</label>
+						<Label htmlFor="password">Password</Label>
 						{!isSignUp && (
 							<Link
 								href="/forgot-password"
-								className="text-xs text-zinc-500 hover:text-zinc-900 hover:underline dark:hover:text-zinc-100"
+								className="text-xs text-muted-foreground hover:text-foreground hover:underline"
 							>
 								Forgot?
 							</Link>
 						)}
 					</div>
-					<input
+					<Input
 						id="password"
 						name="password"
 						type="password"
-						className={inputClass}
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
 						autoComplete={isSignUp ? "new-password" : "current-password"}
@@ -187,9 +168,9 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 						<>
 							<StrengthBar score={score} />
 							{pwError ? (
-								<span className="text-xs text-red-600">{pwError}</span>
+								<span className="text-xs text-destructive">{pwError}</span>
 							) : (
-								<span className="text-xs text-zinc-500">
+								<span className="text-xs text-muted-foreground">
 									{STRENGTH_LABELS[score]} · at least {MIN_PASSWORD_LENGTH} characters
 								</span>
 							)}
@@ -198,36 +179,32 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 				</div>
 				{isSignUp && (
 					<div className="flex flex-col gap-1.5">
-						<label htmlFor="confirm" className="text-sm font-medium">
-							Confirm password
-						</label>
-						<input
+						<Label htmlFor="confirm">Confirm password</Label>
+						<Input
 							id="confirm"
 							name="confirm"
 							type="password"
-							className={inputClass}
 							value={confirm}
 							onChange={(e) => setConfirm(e.target.value)}
 							autoComplete="new-password"
 							required
 						/>
-						{confirmError && <span className="text-xs text-red-600">{confirmError}</span>}
+						{confirmError && <span className="text-xs text-destructive">{confirmError}</span>}
 					</div>
 				)}
 				{isSignUp && (
-					<label
-						htmlFor="agree-to-terms"
-						className="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400"
-					>
-						<input
+					<div className="flex items-start gap-2">
+						<Checkbox
 							id="agree-to-terms"
-							type="checkbox"
 							className="mt-0.5"
 							checked={agreedToTerms}
-							onChange={(e) => setAgreedToTerms(e.target.checked)}
+							onCheckedChange={(v) => setAgreedToTerms(v === true)}
 							required
 						/>
-						<span>
+						<Label
+							htmlFor="agree-to-terms"
+							className="text-xs font-normal leading-relaxed text-muted-foreground"
+						>
 							I agree to the{" "}
 							<Link href="/terms" target="_blank" className="underline underline-offset-2">
 								Terms of Service
@@ -237,36 +214,26 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 								Privacy Policy
 							</Link>
 							.
-						</span>
-					</label>
+						</Label>
+					</div>
 				)}
-				{error && <p className="text-sm text-red-600">{error}</p>}
-				<button
-					type="submit"
-					disabled={pending || blockSignUp}
-					className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-				>
+				{error && <p className="text-sm text-destructive">{error}</p>}
+				<Button type="submit" disabled={pending || blockSignUp}>
 					{pending ? "Please wait…" : isSignUp ? "Create account" : "Sign in"}
-				</button>
+				</Button>
 			</form>
-			<p className="text-center text-sm text-zinc-500">
+			<p className="text-center text-sm text-muted-foreground">
 				{isSignUp ? (
 					<>
 						Already have an account?{" "}
-						<Link
-							href="/sign-in"
-							className="font-medium text-zinc-900 hover:underline dark:text-zinc-100"
-						>
+						<Link href="/sign-in" className="font-medium text-foreground hover:underline">
 							Sign in
 						</Link>
 					</>
 				) : (
 					<>
 						Need an account?{" "}
-						<Link
-							href="/sign-up"
-							className="font-medium text-zinc-900 hover:underline dark:text-zinc-100"
-						>
+						<Link href="/sign-up" className="font-medium text-foreground hover:underline">
 							Sign up
 						</Link>
 					</>

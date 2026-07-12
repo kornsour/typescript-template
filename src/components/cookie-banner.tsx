@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@kornorg/design-system";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -27,7 +28,7 @@ export function CookieBanner() {
 	}
 
 	return (
-		<div className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-700 shadow-lg dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
+		<div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background px-4 py-3 text-sm text-muted-foreground shadow-lg">
 			<div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-3">
 				<p>
 					We use essential cookies to keep you signed in and to run this site. See our{" "}
@@ -36,13 +37,9 @@ export function CookieBanner() {
 					</Link>
 					.
 				</p>
-				<button
-					type="button"
-					onClick={dismiss}
-					className="rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-				>
+				<Button type="button" size="sm" onClick={dismiss}>
 					Got it
-				</button>
+				</Button>
 			</div>
 		</div>
 	);
