@@ -69,6 +69,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 	const [confirm, setConfirm] = useState("");
 	const [agreedToTerms, setAgreedToTerms] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [unverified, setUnverified] = useState(false);
 	const [pending, setPending] = useState(false);
 
 	const pwError = isSignUp && password ? passwordError(password) : null;
@@ -82,6 +83,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 	async function onSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		setError(null);
+		setUnverified(false);
 		if (isSignUp) {
 			const firstErr =
 				(!name ? "Enter your name." : null) ||
@@ -106,7 +108,14 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 			: await signIn.email({ email, password });
 		setPending(false);
 		if (result.error) {
-			setError(result.error.message ?? "Something went wrong.");
+			// In production, signing in unverified is rejected with EMAIL_NOT_VERIFIED
+			// — and `sendOnSignIn` (src/lib/auth.ts) has just emailed a fresh link.
+			// Surface that instead of a bare error, with a resend fallback.
+			if (result.error.code === "EMAIL_NOT_VERIFIED") {
+				setUnverified(true);
+			} else {
+				setError(result.error.message ?? "Something went wrong.");
+			}
 			return;
 		}
 		router.push(next);
@@ -218,6 +227,14 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 					</div>
 				)}
 				{error && <p className="text-sm text-destructive">{error}</p>}
+				{unverified && (
+					<p className="text-sm text-muted-foreground">
+						Your email isn't verified yet. We've sent a new verification link to your inbox.{" "}
+						<Link href="/verify-email" className="font-medium text-foreground hover:underline">
+							Resend
+						</Link>
+					</p>
+				)}
 				<Button type="submit" disabled={pending || blockSignUp}>
 					{pending ? "Please wait…" : isSignUp ? "Create account" : "Sign in"}
 				</Button>
