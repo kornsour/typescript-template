@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.1085.0",
-    "@kornorg/design-system": "^0.3.0",
+    "@kornorg/design-system": "^0.4.0",
     "@neondatabase/serverless": "^1.1.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "better-auth": "^1.6.23",
