@@ -23,6 +23,9 @@ export function SiteFooter() {
 				<Link href="/cookies" className={linkClass}>
 					Cookies
 				</Link>
+				<Link href="/support" className={linkClass}>
+					Support
+				</Link>
 				{env.NEXT_PUBLIC_AI_FEATURES_ENABLED && (
 					<Link href="/ai-disclosure" className={linkClass}>
 						AI Disclosure
