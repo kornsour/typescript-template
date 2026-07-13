@@ -63,6 +63,12 @@ export const auth = betterAuth({
 	},
 	emailVerification: {
 		sendOnSignUp: true,
+		// Re-send a fresh link whenever an unverified user tries to sign in, so a
+		// lost/expired first email self-heals: they just attempt sign-in again. In
+		// production this pairs with `requireEmailVerification` — the sign-in is
+		// rejected with EMAIL_NOT_VERIFIED and a new link goes out. Users can also
+		// request one explicitly at /verify-email.
+		sendOnSignIn: true,
 		autoSignInAfterVerification: true,
 		expiresIn: LINK_EXPIRY_SECONDS,
 		sendVerificationEmail: async ({ user, url }) => {

@@ -111,6 +111,12 @@ pnpm db:deploy        # applies pending migrations; runs automatically as part
 - Password rules live in `src/lib/password.ts` (one source of truth), enforced on
   the form, in the shared Zod schema, and server-side. Social providers turn on
   when their env vars exist.
+- Email verification: sent on sign-up, and re-sent automatically on an unverified
+  sign-in attempt (`sendOnSignIn`, so a lost first email self-heals). Users can
+  also request one explicitly at `/verify-email` (enter email; enumeration-safe)
+  or one-click from the dashboard's unverified notice
+  (`src/components/resend-verification-button.tsx`). Verification is only
+  *required* to sign in in production (`requireEmailVerification`).
 
 ## Billing (Stripe)
 

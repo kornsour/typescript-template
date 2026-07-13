@@ -54,6 +54,11 @@ const CHECKS: Check[] = [
 		contains: ['type="email"', "Reset your password"],
 	},
 	{
+		path: "/verify-email",
+		desc: "resend-verification form",
+		contains: ['type="email"', "Resend verification email", "Send verification link"],
+	},
+	{
 		path: "/reset-password?token=smoke-test-token",
 		desc: "reset-password with token (regression guard: must NOT be a blank shell)",
 		contains: ["New password", "Confirm new password", "Reset password"],

@@ -2,6 +2,7 @@ import { Card } from "@kornorg/design-system";
 import { eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { BillingButton } from "@/components/billing-button";
+import { ResendVerificationButton } from "@/components/resend-verification-button";
 import { SignOutButton } from "@/components/sign-out-button";
 import { db } from "@/db";
 import { subscription } from "@/db/schema";
@@ -32,9 +33,12 @@ export default async function DashboardPage() {
 				<p className="text-lg font-medium">{user.name}</p>
 				<p className="text-sm text-muted-foreground">{user.email}</p>
 				{!user.emailVerified && (
-					<p className="mt-3 text-xs text-warning">
-						Your email isn't verified yet — check your inbox (or the dev server console).
-					</p>
+					<div className="mt-3">
+						<p className="text-xs text-warning">
+							Your email isn't verified yet — check your inbox (or the dev server console).
+						</p>
+						<ResendVerificationButton email={user.email} />
+					</div>
 				)}
 			</Card>
 
