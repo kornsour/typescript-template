@@ -69,6 +69,11 @@ const CHECKS: Check[] = [
 		desc: "reset-password without token",
 		contains: ["This reset link is invalid or has expired.", "Request a new link"],
 	},
+	{
+		path: "/support",
+		desc: "support form",
+		contains: ['type="email"', "Contact support", "Send message"],
+	},
 	{ path: "/terms", desc: "terms", contains: ["Terms of Service"] },
 	{ path: "/privacy", desc: "privacy", contains: ["Privacy Policy"] },
 	{ path: "/acceptable-use", desc: "acceptable-use", contains: ["Acceptable Use Policy"] },

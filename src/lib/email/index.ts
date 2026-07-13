@@ -21,14 +21,17 @@ export type SendEmailInput = {
 	/** Plain-text body. `html` is optional and falls back to text. */
 	text: string;
 	html?: string;
+	/** Where replies should go (e.g. the user who submitted a support form). */
+	replyTo?: string;
 };
 
 const FROM = env.EMAIL_FROM ?? "noreply@example.com";
 
 export async function sendEmail(input: SendEmailInput): Promise<void> {
 	if (!env.AWS_REGION) {
+		const replyLine = input.replyTo ? `\n  reply-to: ${input.replyTo}` : "";
 		console.info(
-			`\n📧 [dev email — no AWS_REGION set]\n  to:      ${input.to}\n  subject: ${input.subject}\n  ${input.text}\n`,
+			`\n📧 [dev email — no AWS_REGION set]\n  to:      ${input.to}${replyLine}\n  subject: ${input.subject}\n  ${input.text}\n`,
 		);
 		return;
 	}
@@ -42,6 +45,7 @@ async function sendViaSes(input: SendEmailInput): Promise<void> {
 		new SendEmailCommand({
 			FromEmailAddress: FROM,
 			Destination: { ToAddresses: [input.to] },
+			...(input.replyTo ? { ReplyToAddresses: [input.replyTo] } : {}),
 			Content: {
 				Simple: {
 					Subject: { Data: input.subject },

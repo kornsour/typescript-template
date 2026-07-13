@@ -43,5 +43,11 @@ merges:
   build + unit tests is no longer the whole story for unattended merges.
 - Feature-PR iteration speed is unchanged (E2E is opt-in via `run-e2e`).
 - The E2E suite is now load-bearing, so it must be kept in sync with the app —
-  CI enforces that for the flows it covers.
+  CI enforces that for the flows it covers. It has since grown beyond auth to
+  cover password-reset, verification-resend, and the support form
+  (`e2e/*.spec.ts`).
+- Because feature PRs skip E2E by default, a change that touches a covered flow
+  should opt in with the `run-e2e` label. CLAUDE.md → **Testing** carries the
+  concrete path→flow map so a human or agent can decide when to add it, keeping
+  E2E runs targeted rather than blanket-on.
 - Major bumps still don't auto-merge (E2E isn't exhaustive); those stay manual.
