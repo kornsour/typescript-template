@@ -57,7 +57,7 @@
     "drizzle-kit": "^0.31.10",
     "google-auth-library": "^10.9.0",
     "tailwindcss": "^4",
-    "typescript": "^6",
+    "typescript": "^7",
     "vitest": "^4.1.10"
   },
   "pnpm": {
