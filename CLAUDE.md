@@ -65,6 +65,7 @@ pnpm build            # production build
 pnpm check[:fix]      # Biome lint+format
 pnpm test             # unit tests (Vitest)
 pnpm e2e[:ui]         # E2E (Playwright, local)
+pnpm smoke[:build]    # production-render smoke (boots `next start`; :build builds first)
 pnpm db:local         # create the local dev database
 pnpm db:push          # push schema (dev)
 pnpm db:generate      # generate a migration
@@ -159,6 +160,12 @@ creating billable/public resources.
   Dependabot PRs (or a feature PR labelled `run-e2e`) — see
   [ADR-0017](./docs/adr/0017-e2e-in-ci-for-dependabot.md). Keep the specs in sync
   with the app; CI enforces it for the flows they cover.
+- Render smoke: `scripts/render-smoke.mts` boots a **production** build
+  (`next start`) and asserts key routes server-render real content under the real
+  strict CSP — catching prod-only blank-screen bugs that dev (permissive CSP) and
+  the dev-server E2E miss. Runs on **every** PR (`.github/workflows/render-smoke.yml`),
+  needs no DB. Run locally with `pnpm smoke:build`. Add a route/marker when you add
+  a route with client-render or CSP risk. See [ADR-0021](./docs/adr/0021-production-render-smoke.md).
 - CI gates every PR on Biome, type-check, Vitest, build, a schema/migration
   check, and a **lockfile-integrity guard**. These come from reusable workflows
   in `kornsour/gh-automation` ([ADR-0018](./docs/adr/0018-reusable-ci-workflows.md)),

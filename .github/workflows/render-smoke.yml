@@ -1,0 +1,55 @@
+name: Render smoke
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  render-smoke:
+    name: Render smoke (prod build)
+    # Runs on EVERY PR: it's fast, needs no database, and catches production-only
+    # render regressions (e.g. a "use client" page reading useSearchParams() that
+    # paints blank under the strict CSP) that `pnpm dev` and the dev-server E2E
+    # never exercise. See scripts/render-smoke.mts and ADR-0021.
+    runs-on: ubuntu-latest
+
+    env:
+      # Placeholders only. `next build` never connects to the database, and the
+      # smoked routes (auth forms, legal pages, home) don't query it either — so
+      # a syntactically valid URL is enough to satisfy env validation. If a route
+      # unexpectedly does hit the DB, the smoke's 5xx check will surface it.
+      DATABASE_URL: postgresql://smoke:smoke@localhost:5432/smoke
+      BETTER_AUTH_SECRET: render-smoke-placeholder-secret-not-used-in-prod
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (production)
+        # Not `pnpm build` — that prepends db:deploy (a no-op off Vercel). Build
+        # directly so we exercise exactly the production server the smoke boots.
+        run: pnpm exec next build
+
+      - name: Render smoke
+        run: pnpm smoke

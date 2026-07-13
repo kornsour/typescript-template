@@ -49,3 +49,4 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0018](./0018-reusable-ci-workflows.md) | Centralize CI & Dependabot automation in reusable workflows | Accepted |
 | [0019](./0019-subdomain-default-domains.md) | New apps default to a subdomain of one shared zone | Accepted |
 | [0020](./0020-design-system.md) | UI on the @kornorg/design-system package | Accepted |
+| [0021](./0021-production-render-smoke.md) | Production-render smoke test in CI | Accepted |
