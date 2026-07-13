@@ -17,8 +17,8 @@ importers:
         specifier: ^3.1085.0
         version: 3.1085.0
       '@kornorg/design-system':
-        specifier: ^0.3.0
-        version: 0.3.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        specifier: ^0.4.0
+        version: 0.4.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@neondatabase/serverless':
         specifier: ^1.1.0
         version: 1.1.0
@@ -662,8 +662,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@kornorg/design-system@0.3.0':
-    resolution: {integrity: sha512-MiyK8VB3YZx3hNI2prYDnT/dkV9RplVaiNRcNCF365COkZGQecu2/knF77yFRXkYbI8bAt58bGh0zcfJTNhJHw==}
+  '@kornorg/design-system@0.4.0':
+    resolution: {integrity: sha512-PJdyipbeCCGa9pvfBroUkBXTiwv77cIlp6NAB29p10bsDrS4vJghKxcbY21A4wdXpZuwRU7PoxHih8cRsV3UbA==}
     engines: {node: '>=24'}
     peerDependencies:
       react: '>=19'
@@ -3122,7 +3122,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kornorg/design-system@0.3.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@kornorg/design-system@0.4.0(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       class-variance-authority: 0.7.1
       clsx: 2.1.1
