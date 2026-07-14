@@ -6,6 +6,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lockfile:
     uses: kornsour/gh-automation/.github/workflows/lockfile-guard.yml@main
