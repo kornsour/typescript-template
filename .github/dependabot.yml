@@ -3,60 +3,34 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 3
     reviewers:
       - "kornsour"
     labels:
       - "dependencies"
     groups:
-      next:
+      all-dependencies:
         patterns:
-          - "next"
-          - "react"
-          - "react-dom"
-          - "@types/react*"
-      tailwind:
-        patterns:
-          - "tailwindcss"
-          - "@tailwindcss/*"
-      drizzle:
-        patterns:
-          - "drizzle-orm"
-          - "drizzle-kit"
-      biome:
-        patterns:
-          - "@biomejs/*"
-      vitest:
-        patterns:
-          - "vitest"
-          - "@vitejs/*"
-      playwright:
-        patterns:
-          - "@playwright/*"
-      zod:
-        patterns:
-          - "zod"
-          - "@t3-oss/*"
-          - "next-safe-action"
-      auth:
-        patterns:
-          - "better-auth"
-      db-driver:
-        patterns:
-          - "pg"
-          - "@types/pg"
-          - "@neondatabase/*"
-      stripe:
-        patterns:
-          - "stripe"
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       day: "monday"
+    open-pull-requests-limit: 3
     labels:
       - "dependencies"
       - "ci"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
