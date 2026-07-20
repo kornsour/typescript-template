@@ -23,14 +23,43 @@ required vars are missing for preview. Minimum to boot: `DATABASE_URL` (Neon) an
 a **fresh** `BETTER_AUTH_SECRET` (never reuse the local one).
 
 ```bash
-vercel env add DATABASE_URL      production preview   # one call, both environments
 vercel env add BETTER_AUTH_SECRET production preview  # openssl rand -base64 32
 # …GOOGLE_*, APPLE_*, STRIPE_*, AWS_REGION, EMAIL_FROM, NEXT_PUBLIC_APP_URL
 vercel env pull .env.local                            # sync down for local parity
 ```
-For preview, either point `DATABASE_URL` at a long-lived Neon `preview` branch,
-or set `NEON_PROJECT_ID`/`NEON_API_KEY` so `neon-preview.yml` gives each PR its
-own migrated branch (see [database.md](./database.md)).
+
+### `DATABASE_URL` needs a different value per environment
+
+Give Preview its **own** database — a long-lived Neon `preview` branch — and add
+the two environments separately:
+
+```bash
+vercel env add DATABASE_URL production   # prod branch connection string
+vercel env add DATABASE_URL preview      # preview branch connection string
+```
+
+Do not add one shared value for both. Every Vercel build runs `pnpm db:deploy`
+(see [database-migrations.md](../maintenance/database-migrations.md)), so if
+Preview resolves to the production database, **each preview deployment applies
+its branch's migrations to production** — before the PR is reviewed or merged,
+destructive ones included. Preview deployments would also read and write live
+production data.
+
+If Preview must share the production `DATABASE_URL` for now, guard it
+explicitly:
+
+```bash
+vercel env add SKIP_DB_MIGRATIONS preview   # value: 1
+```
+
+That stops preview builds from mutating the production schema. It does **not**
+stop them reading and writing production data — a separate database is the only
+fix for that.
+
+Setting `NEON_PROJECT_ID`/`NEON_API_KEY` is worth doing as well, but it is not a
+substitute for either of the above: it gives each PR a migrated Neon branch in
+**CI**, which is where a broken migration gets caught. It has no effect on what a
+Vercel preview deployment connects to (see [database.md](./database.md)).
 
 Or use the session's Vercel skills: `vercel:env` (sync/diff), `vercel:deploy`
 (ship), `vercel:bootstrap` (link + Marketplace integrations, incl. Neon).

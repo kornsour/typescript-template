@@ -66,6 +66,14 @@ migration history at all.
   drift guard, not a review substitute. Renames/data-preserving changes still
   need the hand-authored `--custom` migration path documented in
   `database-migrations.md`.
+- Gating on `VERCEL` rather than on the target environment means **preview**
+  builds migrate too. That is correct when Preview has its own database and
+  dangerous when it does not: an app that sets one shared `DATABASE_URL` across
+  Production and Preview has every preview deployment applying unmerged
+  migrations to prod. The blast radius is a property of the env-var setup, not
+  of the script, so the mitigation is documentation plus the
+  `SKIP_DB_MIGRATIONS=1` escape hatch scoped to the Preview environment — see
+  `docs/setup/deployment.md`.
 - The Neon preview workflow adds `neondatabase/create-branch-action`,
   `delete-branch-action`, and `schema-diff-action` as available CI actions;
   they cost nothing when `NEON_PROJECT_ID` is unset, but an app that does set
