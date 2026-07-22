@@ -187,6 +187,24 @@ verification TXT) could be created with the same `cf` CLI
 `scripts/add-app-domain.sh` uses; DKIM has no API (its key is generated in the
 Admin Console), so that click stays manual.
 
+## 7. Outbound email — AWS SES (optional; required for prod email verification)
+
+Verifies the sending domain, aligns DKIM/SPF/DMARC, requests sandbox exit,
+scopes an IAM policy to `ses:SendEmail` on that identity only, and wires
+bounce/complaint handling. The full CLI checklist (with console fallbacks) is
+in [`docs/setup/aws-ses.md`](../../../docs/setup/aws-ses.md) — walk it rather
+than re-deriving the commands. App side: set `AWS_REGION` + `EMAIL_FROM` (and
+`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` on Vercel).
+
+## 8. Support-form anti-spam — Cloudflare Turnstile (optional, free)
+
+The `/support` form already ships a honeypot + DB-backed rate limiting; for a
+public launch add the free Turnstile challenge. Keys come from the Cloudflare
+dashboard (no API on the free plan) — see
+[`docs/setup/turnstile.md`](../../../docs/setup/turnstile.md). Set
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` locally and on
+Vercel.
+
 ## After provisioning
 
 - Update `.env` locally and mirror to Vercel; never commit `.env`.

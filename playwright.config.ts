@@ -1,5 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
 
+// Override with E2E_PORT when localhost:3000 is taken (e.g. another project's
+// dev server). Also set NEXT_PUBLIC_APP_URL=http://localhost:<port> so auth
+// origins match the server Playwright boots.
+const port = Number(process.env.E2E_PORT ?? 3000);
+const baseURL = `http://localhost:${port}`;
+
 export default defineConfig({
 	testDir: "./e2e",
 	fullyParallel: true,
@@ -8,7 +14,7 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 	reporter: "html",
 	use: {
-		baseURL: "http://localhost:3000",
+		baseURL,
 		trace: "on-first-retry",
 	},
 	projects: [
@@ -18,8 +24,8 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "pnpm dev",
-		url: "http://localhost:3000",
+		command: `pnpm dev --port ${port}`,
+		url: baseURL,
 		reuseExistingServer: !process.env.CI,
 	},
 });

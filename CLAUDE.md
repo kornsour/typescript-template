@@ -125,6 +125,18 @@ pnpm db:deploy        # applies pending migrations; runs automatically as part
   is the source of truth for subscription state. **Check entitlement by reading
   the `subscription` table server-side**, never a client value.
 
+## Support form
+
+- Public contact form at `/support` → emails `legalConfig.supportEmail`
+  (`src/content/legal/config.ts`) with the sender as reply-to, and stores every
+  accepted submission in the `support_request` table (audit trail).
+- Anti-spam is layered in `src/lib/support/anti-spam.ts`: honeypot (always on)
+  → optional Cloudflare Turnstile (inert until `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+  + `TURNSTILE_SECRET_KEY` are set, see `docs/setup/turnstile.md`) → DB-backed
+  sliding-window rate limits (per IP hash + per email). Keep all checks
+  server-side; the disabled submit button is UX only.
+- SES-side provisioning/hardening for outbound mail: `docs/setup/aws-ses.md`.
+
 ## Server Actions
 
 - `next-safe-action`: `actionClient` for public, `authActionClient` (adds
@@ -162,7 +174,9 @@ creating billable/public resources.
 
 - Unit: `*.test.ts(x)` alongside source or in `src/__tests__/`; `@/*` → `src/*`.
 - E2E: `e2e/*.spec.ts`; Playwright auto-starts the dev server (Chromium only).
-  Needs a local DB running for auth flows. Run locally with `pnpm e2e`. Covers:
+  Needs a local DB running for auth flows. Run locally with `pnpm e2e`; if
+  port 3000 is taken by another project, use
+  `E2E_PORT=3100 NEXT_PUBLIC_APP_URL=http://localhost:3100 pnpm e2e`. Covers:
   sign-up→dashboard→sign-out + protected-route redirect (`auth.spec`), the home
   page (`home.spec`), password-reset pages (`password-reset.spec`), the
   verification-resend page + dashboard resend button (`verify-email.spec`), and

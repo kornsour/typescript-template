@@ -13,6 +13,8 @@ import {
 } from "@kornorg/design-system";
 import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
+import { TurnstileWidget } from "@/components/turnstile-widget";
+import { env } from "@/env";
 import { submitSupportRequest } from "@/lib/support/actions";
 import { SUPPORT_CATEGORIES } from "@/lib/support/schema";
 
@@ -20,6 +22,10 @@ import { SUPPORT_CATEGORIES } from "@/lib/support/schema";
  * Support / "report a bug" form. Public — usable signed in or out. Name and
  * email prefill from the session when available. Submits to a server action
  * that emails the app's support inbox with the sender as reply-to.
+ *
+ * Anti-spam: an invisible honeypot field, plus a Cloudflare Turnstile challenge
+ * when NEXT_PUBLIC_TURNSTILE_SITE_KEY is set (see src/lib/support/anti-spam.ts
+ * for the server side).
  */
 export function SupportForm({
 	defaultName = "",
@@ -32,6 +38,9 @@ export function SupportForm({
 	const [email, setEmail] = useState(defaultEmail);
 	const [category, setCategory] = useState<(typeof SUPPORT_CATEGORIES)[number]>("Bug");
 	const [message, setMessage] = useState("");
+	const [website, setWebsite] = useState(""); // honeypot — humans never see it
+	const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+	const turnstileEnabled = Boolean(env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 	const { execute, isPending, result } = useAction(submitSupportRequest);
 	const sent = result.data?.ok === true;
@@ -40,6 +49,7 @@ export function SupportForm({
 	const ve = result.validationErrors;
 	const errorMessage =
 		result.serverError ??
+		(result.data && !result.data.ok ? result.data.error : null) ??
 		ve?.name?._errors?.[0] ??
 		ve?.email?._errors?.[0] ??
 		ve?.message?._errors?.[0] ??
@@ -61,7 +71,14 @@ export function SupportForm({
 		<form
 			onSubmit={(e) => {
 				e.preventDefault();
-				execute({ name, email, category, message });
+				execute({
+					name,
+					email,
+					category,
+					message,
+					website,
+					turnstileToken: turnstileToken ?? undefined,
+				});
 			}}
 			className="flex flex-col gap-4"
 		>
@@ -123,8 +140,23 @@ export function SupportForm({
 					minLength={10}
 				/>
 			</div>
+			{/* Honeypot: visually hidden and skipped by keyboard/screen-reader
+			    navigation; bots that fill every field trip it. */}
+			<div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+				<label htmlFor="support-website">Website</label>
+				<input
+					id="support-website"
+					name="website"
+					type="text"
+					tabIndex={-1}
+					autoComplete="off"
+					value={website}
+					onChange={(e) => setWebsite(e.target.value)}
+				/>
+			</div>
+			{turnstileEnabled && <TurnstileWidget onToken={setTurnstileToken} />}
 			{errorMessage && <p className="text-sm text-destructive">{errorMessage}</p>}
-			<Button type="submit" disabled={isPending}>
+			<Button type="submit" disabled={isPending || (turnstileEnabled && !turnstileToken)}>
 				{isPending ? "Sending…" : "Send message"}
 			</Button>
 		</form>
