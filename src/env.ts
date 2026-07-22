@@ -22,6 +22,17 @@ export const env = createEnv({
 		// ---- Billing: Stripe (optional — billing is inert until set) ----
 		STRIPE_SECRET_KEY: z.string().optional(),
 		STRIPE_WEBHOOK_SIGNING_SECRET: z.string().optional(),
+
+		// ---- AI (optional — the AI layer is inert until AI_MODEL is set) ----
+		// "<tier>/<model>" ids — see src/lib/ai/model-id.ts and ADR-0022.
+		// Subscription tiers (claude-code/*, codex/*) are LOCAL DEV ONLY.
+		AI_MODEL: z.string().optional(),
+		AI_MODEL_FALLBACK: z.string().optional(),
+		ANTHROPIC_API_KEY: z.string().optional(),
+		OPENAI_API_KEY: z.string().optional(),
+		// Set automatically by Vercel in deployed builds; never set it yourself.
+		// Drives the AI deployment boundary (src/lib/ai/deployment-boundary.ts).
+		VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
 	},
 	client: {
 		// Public base URL (used by better-auth, OAuth redirects, email links).
@@ -48,6 +59,11 @@ export const env = createEnv({
 		EMAIL_FROM: process.env.EMAIL_FROM,
 		STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
 		STRIPE_WEBHOOK_SIGNING_SECRET: process.env.STRIPE_WEBHOOK_SIGNING_SECRET,
+		AI_MODEL: process.env.AI_MODEL,
+		AI_MODEL_FALLBACK: process.env.AI_MODEL_FALLBACK,
+		ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+		OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+		VERCEL_ENV: process.env.VERCEL_ENV,
 		NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 		NEXT_PUBLIC_GOOGLE_ENABLED: process.env.NEXT_PUBLIC_GOOGLE_ENABLED,
 		NEXT_PUBLIC_APPLE_ENABLED: process.env.NEXT_PUBLIC_APPLE_ENABLED,

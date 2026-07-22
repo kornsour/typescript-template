@@ -21,6 +21,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+	// The subscription-CLI adapters are local-dev-only (see ADR-0022) and are
+	// loaded lazily in src/lib/ai/provider.ts. Marking them external keeps them
+	// (and the Claude Agent SDK they pull in) out of the server bundle entirely.
+	serverExternalPackages: ["ai-sdk-provider-claude-code", "ai-sdk-provider-codex-cli"],
 	async headers() {
 		return [
 			{

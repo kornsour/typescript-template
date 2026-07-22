@@ -27,6 +27,7 @@ to `.env` when you want them — each is inert until configured.
 | Local Postgres / [Neon](https://neon.tech) | Dev database / serverless Postgres in prod |
 | [better-auth](https://better-auth.com) | Self-hosted auth (Google, Apple, email/password) |
 | [Stripe](https://stripe.com) | Subscription billing (env-flagged) |
+| [Vercel AI SDK](https://ai-sdk.dev) | AI features — subscription CLIs in dev, API keys deployed ([docs](./docs/setup/ai.md)) |
 | [Biome](https://biomejs.dev) · [Vitest](https://vitest.dev) · [Playwright](https://playwright.dev) | Lint/format · unit · e2e |
 
 ## Scripts
