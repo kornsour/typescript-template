@@ -24,6 +24,7 @@ posture in `docs/security.md`, and operational runbooks in `docs/maintenance/`.
 - **ORM**: Drizzle · **DB**: local Postgres in dev, Neon in prod ([ADR-0011](./docs/adr/0011-local-postgres-neon-dual-driver.md))
 - **Auth**: better-auth, self-hosted ([ADR-0012](./docs/adr/0012-auth-better-auth.md))
 - **Billing**: Stripe, env-flagged ([ADR-0013](./docs/adr/0013-stripe-billing.md))
+- **AI**: Vercel AI SDK, tiered model access — subscription CLIs locally, API keys deployed ([ADR-0022](./docs/adr/0022-ai-model-access-tiers.md))
 - **Email**: pluggable (console in dev, AWS SES when `AWS_REGION` is set)
 - **Env**: `@t3-oss/env-nextjs` + Zod · **Actions**: next-safe-action · **PM**: pnpm
 
@@ -43,6 +44,8 @@ src/
 ├── content/legal/        # config.ts — company info + LEGAL_VERSION for the (legal) pages
 ├── db/                   # schema.ts (auth + billing tables) + dual-driver index.ts
 ├── lib/
+│   ├── ai/               # model access: provider.ts (runText/runObject),
+│   │                     # model-id.ts, deployment-boundary.ts (ToS guard)
 │   ├── auth.ts           # better-auth server instance
 │   ├── auth-client.ts    # better-auth React client
 │   ├── auth/             # session.ts (getSession/requireUser), password-schema.ts
@@ -136,6 +139,24 @@ pnpm db:deploy        # applies pending migrations; runs automatically as part
   sliding-window rate limits (per IP hash + per email). Keep all checks
   server-side; the disabled submit button is UX only.
 - SES-side provisioning/hardening for outbound mail: `docs/setup/aws-ses.md`.
+
+## AI / Model Access
+
+- Inert until `AI_MODEL` is set. All model calls go through `runText()` /
+  `runObject()` in `src/lib/ai/provider.ts` — never call
+  `generateText`/`generateObject` from `ai` directly.
+- Model ids are `"<tier>/<model>"`: `anthropic/*` + `openai/*` (API keys,
+  deployable) vs `claude-code/*` + `codex/*` (personal subscription CLIs,
+  **local `next dev` only**). Setup: `docs/setup/ai.md`.
+- **Anthropic/OpenAI ToS — do not break this** ([ADR-0022](./docs/adr/0022-ai-model-access-tiers.md)):
+  never weaken `assertSubscriptionModelAllowed()` /
+  `assertAiDeploymentBoundary()` (`src/lib/ai/deployment-boundary.ts`) or
+  their tests; never default a subscription id in deployed config; never
+  top-level-import the `ai-sdk-provider-claude-code` / `ai-sdk-provider-codex-cli`
+  adapters (they stay lazily loaded + in `serverExternalPackages`); never send a
+  subscription OAuth token to the Anthropic/OpenAI APIs.
+- User-facing AI features additionally need `<AiDisclosureNotice>` +
+  `NEXT_PUBLIC_AI_FEATURES_ENABLED` (see Legal below).
 
 ## Server Actions
 
