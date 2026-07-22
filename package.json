@@ -31,10 +31,15 @@
     "smoke:build": "next build && node scripts/render-smoke.mts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.18",
+    "@ai-sdk/openai": "^4.0.18",
     "@aws-sdk/client-sesv2": "^3.1086.0",
     "@kornorg/design-system": "^0.4.0",
     "@neondatabase/serverless": "^1.1.0",
     "@t3-oss/env-nextjs": "^0.13.11",
+    "ai": "^7.0.35",
+    "ai-sdk-provider-claude-code": "4.0.1",
+    "ai-sdk-provider-codex-cli": "2.1.1",
     "better-auth": "^1.6.23",
     "drizzle-orm": "^0.45.2",
     "next": "16.2.10",
