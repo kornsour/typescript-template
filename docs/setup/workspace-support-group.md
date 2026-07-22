@@ -1,7 +1,7 @@
 # Support email — Google Workspace group
 
-Every app built from this template shares one Google Workspace
-(`kornsour.com`). Rather than exposing a personal address as the support
+Every app built from this template shares one Google Workspace (the template
+owner's primary domain). Rather than exposing a personal address as the support
 contact, each app gets a `support@<app-domain>` Google Group backed by a real
 inbox. This doc covers the one-time org setup (already done) and the
 per-app checklist an agent should walk through when provisioning a new app.
@@ -13,28 +13,52 @@ authenticate with **keyless Workload Identity Federation** — GitHub Actions'
 OIDC token is exchanged for a domain-wide-delegated Admin SDK access token via
 IAM Credentials `signJwt`, with no service account key ever touching disk.
 
+## Where the concrete values live
+
+This repo is public, so environment-specific identifiers (GCP project, WIF
+provider path, service-account email) are **not** written into the workflows or
+docs. They live as repository **Actions variables** (Settings → Secrets and
+variables → Actions → Variables), which the two workflows read via `vars.*`:
+
+| Variable | What it is |
+| --- | --- |
+| `GCP_PROJECT_ID` | The GCP project that hosts the provisioner service account |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Full WIF provider path (`projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>`) |
+| `WORKSPACE_SA_EMAIL` | The provisioner service-account email |
+
+A repo generated from the template does **not** inherit these — copy them from
+the template repo when provisioning a new app:
+
+```bash
+for v in GCP_PROJECT_ID GCP_WORKLOAD_IDENTITY_PROVIDER WORKSPACE_SA_EMAIL; do
+  gh variable set "$v" --repo <owner>/<new-app> \
+    --body "$(gh variable get "$v" --repo <owner>/<template-repo> --json value --jq .value)"
+done
+```
+
 ## One-time org setup (already done)
 
-Done once for the `kornsour` GCP project / Workspace. Only redo if rotating
+Done once for the shared GCP project / Workspace. Only redo if rotating
 the service account or adding a second GitHub org/owner.
 
-- GCP project `kornsour` (number `230184516135`); APIs enabled:
+- GCP project `<GCP_PROJECT_ID>` (project number `<project-number>`); APIs enabled:
   `admin.googleapis.com`, `iamcredentials.googleapis.com`, `sts.googleapis.com`,
   `siteverification.googleapis.com`.
-- Service account `workspace-group-provisioner@kornsour.iam.gserviceaccount.com`
-  (Client ID `107336430268455727166`), no key ever generated.
-- Workload Identity Pool `github-actions-pool` / provider `github-actions-provider`,
-  trusting GitHub's OIDC issuer for any repo owned by `kornsour`:
+- Service account `<WORKSPACE_SA_EMAIL>` (note its OAuth2 Client ID for the
+  delegation step below), no key ever generated.
+- Workload Identity Pool + provider trusting GitHub's OIDC issuer for any repo
+  owned by the template owner; the full provider path is the
+  `GCP_WORKLOAD_IDENTITY_PROVIDER` variable:
   ```
-  projects/230184516135/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+  projects/<project-number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>
   ```
 - IAM bindings on the service account, both scoped to
-  `principalSet://iam.googleapis.com/projects/230184516135/locations/global/workloadIdentityPools/github-actions-pool/attribute.repository_owner/kornsour`:
+  `principalSet://iam.googleapis.com/projects/<project-number>/locations/global/workloadIdentityPools/<pool>/attribute.repository_owner/<github-owner>`:
   `roles/iam.workloadIdentityUser` and `roles/iam.serviceAccountTokenCreator`
   (the latter is what lets the workflow call `signJwt` for domain-wide delegation).
 - Domain-wide delegation authorized in the Workspace Admin Console
-  (Security → API Controls → Domain-wide Delegation) for Client ID
-  `107336430268455727166`, scopes (comma-separated on one entry):
+  (Security → API Controls → Domain-wide Delegation) for the service account's
+  OAuth2 Client ID, scopes (comma-separated on one entry):
   ```
   https://www.googleapis.com/auth/admin.directory.group,https://www.googleapis.com/auth/siteverification,https://www.googleapis.com/auth/admin.directory.domain
   ```

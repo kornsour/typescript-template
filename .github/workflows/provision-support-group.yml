@@ -20,11 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # GCP_PROJECT_ID, GCP_WORKLOAD_IDENTITY_PROVIDER, and WORKSPACE_SA_EMAIL
+      # are repository Actions *variables* (Settings → Secrets and variables →
+      # Actions → Variables) — see docs/setup/workspace-support-group.md.
       - name: Authenticate to Google Cloud (Workload Identity Federation)
         uses: google-github-actions/auth@v3
         with:
-          project_id: kornsour
-          workload_identity_provider: projects/230184516135/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -43,3 +46,4 @@ jobs:
         env:
           SUPPORT_GROUP_DOMAIN: ${{ inputs.domain }}
           WORKSPACE_ADMIN_EMAIL: ${{ inputs.admin_email }}
+          WORKSPACE_SA_EMAIL: ${{ vars.WORKSPACE_SA_EMAIL }}
