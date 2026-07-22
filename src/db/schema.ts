@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 /* -------------------------------------------------------------------------- */
 /*  better-auth core tables                                                    */
@@ -106,3 +106,33 @@ export const subscription = pgTable("subscription", {
 		.$defaultFn(() => new Date())
 		.notNull(),
 });
+
+/* -------------------------------------------------------------------------- */
+/*  Support requests                                                            */
+/*  Every accepted /support submission is stored here before it is emailed —   */
+/*  an audit trail that survives email-delivery failures, and the data the     */
+/*  anti-spam rate limiter counts against (src/lib/support/anti-spam.ts).      */
+/*  `ip_hash` is a salted SHA-256 of the client IP, never the raw address.     */
+/* -------------------------------------------------------------------------- */
+
+export const supportRequest = pgTable(
+	"support_request",
+	{
+		id: text("id")
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		name: text("name").notNull(),
+		email: text("email").notNull(),
+		category: text("category").notNull(),
+		message: text("message").notNull(),
+		ipHash: text("ip_hash").notNull(),
+		createdAt: timestamp("created_at")
+			.$defaultFn(() => new Date())
+			.notNull(),
+	},
+	(table) => [
+		// Both rate-limit windows query "rows for X newer than T".
+		index("support_request_ip_hash_created_at_idx").on(table.ipHash, table.createdAt),
+		index("support_request_email_created_at_idx").on(table.email, table.createdAt),
+	],
+);

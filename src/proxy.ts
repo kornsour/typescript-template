@@ -16,6 +16,9 @@ const PROTECTED_PREFIXES = ["/dashboard"];
  *   - Production: strict — scripts must carry the per-request nonce.
  *   - Development: adds 'unsafe-eval'/'unsafe-inline' so Turbopack HMR works.
  * Stripe hosts are allowed so Stripe.js / hosted checkout function if used.
+ * challenges.cloudflare.com is allowed (script + frame) for the optional
+ * Turnstile widget on the support form; in production the script is loaded by
+ * nonce-trusted code, so the host entry mainly serves dev and legacy browsers.
  */
 function buildCsp(nonce: string): string {
 	const dev = process.env.NODE_ENV !== "production";
@@ -27,12 +30,12 @@ function buildCsp(nonce: string): string {
 		: `'self' 'nonce-${nonce}' '${THEME_INIT_CSP_HASH}' 'strict-dynamic'`;
 	return [
 		`default-src 'self'`,
-		`script-src ${scriptSrc} https://js.stripe.com`,
+		`script-src ${scriptSrc} https://js.stripe.com https://challenges.cloudflare.com`,
 		`style-src 'self' 'unsafe-inline'`,
 		`img-src 'self' data: blob: https:`,
 		`font-src 'self'`,
 		`connect-src 'self' https://api.stripe.com`,
-		`frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com`,
+		`frame-src https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://challenges.cloudflare.com`,
 		`frame-ancestors 'none'`,
 		`base-uri 'self'`,
 		`form-action 'self'`,

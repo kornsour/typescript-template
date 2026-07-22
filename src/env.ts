@@ -23,6 +23,10 @@ export const env = createEnv({
 		STRIPE_SECRET_KEY: z.string().optional(),
 		STRIPE_WEBHOOK_SIGNING_SECRET: z.string().optional(),
 
+		// ---- Anti-spam: Cloudflare Turnstile (optional — free; the support form
+		// verifies tokens server-side only when this is set) ----
+		TURNSTILE_SECRET_KEY: z.string().optional(),
+
 		// ---- AI (optional — the AI layer is inert until AI_MODEL is set) ----
 		// "<tier>/<model>" ids — see src/lib/ai/model-id.ts and ADR-0022.
 		// Subscription tiers (claude-code/*, codex/*) are LOCAL DEV ONLY.
@@ -46,6 +50,9 @@ export const env = createEnv({
 		// Publishable key + a default price for the demo checkout button.
 		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
 		NEXT_PUBLIC_STRIPE_PRICE_ID: z.string().optional(),
+		// Renders the Turnstile challenge on the support form when set (pair with
+		// TURNSTILE_SECRET_KEY, or tokens are never checked).
+		NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().optional(),
 	},
 	runtimeEnv: {
 		DATABASE_URL: process.env.DATABASE_URL,
@@ -59,6 +66,7 @@ export const env = createEnv({
 		EMAIL_FROM: process.env.EMAIL_FROM,
 		STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
 		STRIPE_WEBHOOK_SIGNING_SECRET: process.env.STRIPE_WEBHOOK_SIGNING_SECRET,
+		TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
 		AI_MODEL: process.env.AI_MODEL,
 		AI_MODEL_FALLBACK: process.env.AI_MODEL_FALLBACK,
 		ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
@@ -70,6 +78,7 @@ export const env = createEnv({
 		NEXT_PUBLIC_AI_FEATURES_ENABLED: process.env.NEXT_PUBLIC_AI_FEATURES_ENABLED,
 		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 		NEXT_PUBLIC_STRIPE_PRICE_ID: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID,
+		NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
 	},
 	skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 	emptyStringAsUndefined: true,

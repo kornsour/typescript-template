@@ -18,4 +18,10 @@ export const supportSchema = z.object({
 		.trim()
 		.min(10, "Please add a few more details (at least 10 characters).")
 		.max(5000),
+	// Honeypot. Rendered invisibly on the form; humans never fill it, naive bots
+	// do. Server-side, a non-empty value silently drops the message.
+	website: z.string().max(200).optional(),
+	// Cloudflare Turnstile token — only required (and verified) when
+	// TURNSTILE_SECRET_KEY is configured. See src/lib/support/anti-spam.ts.
+	turnstileToken: z.string().optional(),
 });

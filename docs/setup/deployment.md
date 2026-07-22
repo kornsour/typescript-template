@@ -77,7 +77,9 @@ environments) and register the production OAuth redirect URIs.
    identity/domain in that region (email verification is required in prod).
    Vercel has no IAM role to fall back on, so the AWS SDK's default credential
    chain needs `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` set as env vars too
-   (app code has no provider-specific logic either way).
+   (app code has no provider-specific logic either way). Full SES provisioning
+   + hardening checklist (DKIM/SPF/DMARC, sandbox exit, least-privilege IAM,
+   bounce handling): [`aws-ses.md`](./aws-ses.md).
 5. Schema migrations apply automatically — `pnpm build` runs `pnpm db:deploy`
    before `next build` on every Vercel deploy (gated on the `VERCEL` env var,
    so this doesn't need a manual step). See

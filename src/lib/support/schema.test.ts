@@ -29,6 +29,20 @@ describe("supportSchema", () => {
 		expect(supportSchema.safeParse({ ...valid, category: "Sales" }).success).toBe(false);
 	});
 
+	it("accepts the anti-spam fields when present", () => {
+		const parsed = supportSchema.safeParse({
+			...valid,
+			website: "",
+			turnstileToken: "tok_123",
+		});
+		expect(parsed.success).toBe(true);
+	});
+
+	it("keeps honeypot and Turnstile fields optional (plain human submissions)", () => {
+		// `valid` has neither field — the schema must not require them.
+		expect(supportSchema.safeParse(valid).success).toBe(true);
+	});
+
 	it("exposes the categories the form renders", () => {
 		expect(SUPPORT_CATEGORIES).toContain("Bug");
 		expect(SUPPORT_CATEGORIES.length).toBeGreaterThan(0);

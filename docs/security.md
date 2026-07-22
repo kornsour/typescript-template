@@ -18,6 +18,8 @@ run before shipping. Read alongside the ADRs it links.
 | CSRF (actions) | Server actions are same-origin POSTs; `next-safe-action` validates input with Zod. | `src/lib/safe-action.ts` |
 | Secrets | All env vars validated at the boundary; server secrets never reach the client bundle. | `src/env.ts`, [ADR-0006](./adr/0006-type-safe-env.md) |
 | Secret leakage | `.gitignore` excludes `.env*` (only `.env.example` is committed). | `.gitignore` |
+| Support-form abuse | Layered: honeypot (always on) → optional Cloudflare Turnstile (env-gated, free) → DB-backed sliding-window rate limits per IP hash (5/h) and per email (3/h). IPs stored only as salted SHA-256 hashes; accepted submissions are persisted to `support_request` as the audit trail the limiter counts against. | `src/lib/support/anti-spam.ts`, `docs/setup/turnstile.md` |
+| Outbound email | SES hardening checklist: domain DKIM/SPF/DMARC, least-privilege `ses:SendEmail` IAM, suppression list + bounce/complaint metrics. | `docs/setup/aws-ses.md` |
 
 ## Pre-deploy checklist
 
@@ -29,7 +31,12 @@ run before shipping. Read alongside the ADRs it links.
 4. Stripe webhook endpoint added in the Stripe dashboard with a **production**
    signing secret (test-mode `whsec_` won't verify live events).
 5. Email verification is required in production — confirm `AWS_REGION` is set and
-   `EMAIL_FROM` is a verified SES identity so users can actually verify.
-6. Tighten the CSP in `src/proxy.ts` to your real origins; drop what you don't use.
-7. Run the **`/security-review`** skill on the diff before merging.
-8. Neon: use a pooled connection string and restrict DB access; rotate on leak.
+   `EMAIL_FROM` is a verified SES identity so users can actually verify. Walk
+   the SES hardening checklist in `docs/setup/aws-ses.md` (DKIM/SPF/DMARC,
+   least-privilege IAM, bounce/complaint handling).
+6. The public support form ships with honeypot + rate limiting; for a
+   public-facing launch also set the free Turnstile keys
+   (`docs/setup/turnstile.md`).
+7. Tighten the CSP in `src/proxy.ts` to your real origins; drop what you don't use.
+8. Run the **`/security-review`** skill on the diff before merging.
+9. Neon: use a pooled connection string and restrict DB access; rotate on leak.
