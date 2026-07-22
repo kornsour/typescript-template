@@ -18,7 +18,6 @@
  */
 import { GoogleAuth } from "google-auth-library";
 
-const DEFAULT_SERVICE_ACCOUNT = "workspace-group-provisioner@kornsour.iam.gserviceaccount.com";
 const SITE_VERIFICATION_SCOPE = "https://www.googleapis.com/auth/siteverification";
 const DIRECTORY_DOMAIN_SCOPE = "https://www.googleapis.com/auth/admin.directory.domain";
 
@@ -116,7 +115,8 @@ async function getWorkspaceDomain(accessToken: string, domain: string) {
 
 async function main() {
 	const [command, domain, adminEmail] = process.argv.slice(2);
-	const serviceAccountEmail = process.env.WORKSPACE_SA_EMAIL || DEFAULT_SERVICE_ACCOUNT;
+	const serviceAccountEmail = process.env.WORKSPACE_SA_EMAIL;
+	if (!serviceAccountEmail) throw new Error("Missing required env var: WORKSPACE_SA_EMAIL");
 
 	const validCommands = ["get-token", "verify-add", "add-only", "status"];
 	if (!command || !domain || !adminEmail || !validCommands.includes(command)) {

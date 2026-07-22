@@ -12,13 +12,13 @@
  *   WORKSPACE_ADMIN_EMAIL      Workspace admin to impersonate (needs Groups Admin
  *                              or Super Admin privileges; this is the DWD "sub")
  * Optional:
- *   WORKSPACE_SA_EMAIL         defaults to workspace-group-provisioner@kornsour.iam.gserviceaccount.com
+ *   WORKSPACE_SA_EMAIL         the provisioning service account (set as a repo
+ *                              Actions variable; see docs/setup/workspace-support-group.md)
  *   SUPPORT_GROUP_OWNER_EMAIL  defaults to WORKSPACE_ADMIN_EMAIL; added as group OWNER
  */
 import { GoogleAuth } from "google-auth-library";
 
 const DIRECTORY_GROUP_SCOPE = "https://www.googleapis.com/auth/admin.directory.group";
-const DEFAULT_SERVICE_ACCOUNT = "workspace-group-provisioner@kornsour.iam.gserviceaccount.com";
 
 function requireEnv(name: string): string {
 	const value = process.env[name];
@@ -80,7 +80,7 @@ function directoryRequest(accessToken: string, path: string, init: RequestInit =
 async function main() {
 	const domain = requireEnv("SUPPORT_GROUP_DOMAIN");
 	const adminEmail = requireEnv("WORKSPACE_ADMIN_EMAIL");
-	const serviceAccountEmail = process.env.WORKSPACE_SA_EMAIL || DEFAULT_SERVICE_ACCOUNT;
+	const serviceAccountEmail = requireEnv("WORKSPACE_SA_EMAIL");
 	const ownerEmail = process.env.SUPPORT_GROUP_OWNER_EMAIL || adminEmail;
 	const groupEmail = `support@${domain}`;
 
