@@ -26,8 +26,16 @@ variables → Actions → Variables), which the two workflows read via `vars.*`:
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | Full WIF provider path (`projects/<number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>`) |
 | `WORKSPACE_SA_EMAIL` | The provisioner service-account email |
 
-A repo generated from the template does **not** inherit these — copy them from
-the template repo when provisioning a new app:
+The same three variables also exist as **organization variables** (visibility:
+all repositories) on the template owner's GitHub organization — a new app repo
+created **inside that org** inherits them automatically and needs no setup.
+The org's owner(s) must also be trusted by the GCP side: the WIF provider's
+attribute condition and the service account's `principalSet` IAM bindings each
+list the allowed `repository_owner` values, so adding a new org means extending
+both (see the one-time setup below).
+
+A repo generated under a **personal account** does *not* inherit org variables —
+copy them from the template repo when provisioning a new app:
 
 ```bash
 for v in GCP_PROJECT_ID GCP_WORKLOAD_IDENTITY_PROVIDER WORKSPACE_SA_EMAIL; do
@@ -52,6 +60,11 @@ the service account or adding a second GitHub org/owner.
   ```
   projects/<project-number>/locations/global/workloadIdentityPools/<pool>/providers/<provider>
   ```
+  The provider's **attribute condition** allowlists the trusted owners, e.g.
+  `assertion.repository_owner=='<owner>' || assertion.repository_owner=='<org>'`.
+  To trust an additional org/owner, update it with
+  `gcloud iam workload-identity-pools providers update-oidc <provider> --attribute-condition=...`
+  **and** add the two IAM bindings below for the new owner's `principalSet`.
 - IAM bindings on the service account, both scoped to
   `principalSet://iam.googleapis.com/projects/<project-number>/locations/global/workloadIdentityPools/<pool>/attribute.repository_owner/<github-owner>`:
   `roles/iam.workloadIdentityUser` and `roles/iam.serviceAccountTokenCreator`
