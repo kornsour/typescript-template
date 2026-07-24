@@ -44,9 +44,14 @@ Schema changes are enforced and deployed automatically — see
 [ADR-0016](../adr/0016-database-migration-automation.md):
 
 - `pnpm build` applies pending migrations before `next build` on every Vercel
-  deploy (`pnpm db:deploy`, gated on the `VERCEL` env var).
+  deploy (`pnpm db:deploy`, gated on the `VERCEL` env var) — against whatever
+  database that deployment's `DATABASE_URL` points at. **Preview needs its own
+  `DATABASE_URL`**, or preview deploys will migrate production; see
+  [deployment.md](./deployment.md).
 - CI fails a PR that changes `schema.ts` without a matching `drizzle/`
   migration file.
 - Setting the `NEON_PROJECT_ID` repo variable (+ `NEON_API_KEY` secret) turns
   on a per-PR Neon preview branch that gets migrated and schema-diffed
-  automatically (`.github/workflows/neon-preview.yml`).
+  automatically (`.github/workflows/neon-preview.yml`). This runs in CI to catch
+  broken migrations before merge; it does not affect which database a Vercel
+  preview deployment uses.
