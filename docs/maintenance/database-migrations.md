@@ -47,6 +47,22 @@ git push
 - To skip migrations on a Vercel build (e.g. you already applied them by
   hand): set `SKIP_DB_MIGRATIONS=1` as a Vercel env var for that deployment.
 
+### Which database a build migrates
+
+Whichever one `DATABASE_URL` resolves to for **that** deployment's environment.
+The script has no notion of "production" — it migrates what it is pointed at.
+
+This matters because preview builds run it too. If Preview and Production share
+a single `DATABASE_URL` value in Vercel, every preview deployment applies its
+branch's migrations to the **production** database, before the PR merges and
+including destructive ones. Give Preview its own database, or set
+`SKIP_DB_MIGRATIONS=1` on the Preview environment — see
+[deployment.md](../setup/deployment.md).
+
+`neon-preview.yml` does not cover this. It migrates a per-PR Neon branch inside
+CI, which is how a broken migration gets caught before merge; it does not change
+what a Vercel preview deployment connects to. The two are complementary.
+
 ## Common scenarios
 
 ### Adding a column or table
