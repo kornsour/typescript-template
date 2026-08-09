@@ -47,3 +47,23 @@ generated record.
   start.
 - Records are created DNS-only (`proxied: false`) so Vercel issues the TLS cert;
   enabling Cloudflare's proxy afterward requires SSL/TLS mode Full (strict).
+
+## Amendment (2026-08-09) — the mechanics moved to SST
+
+[ADR-0023](./0023-aws-sst-deploy.md) replaced Vercel with AWS. The **policy
+above is unchanged** — a subdomain of one shared zone by default, promoted to a
+dedicated apex when an app earns it — but the implementation is no longer a
+script that calls Vercel's API.
+
+`sst.aws.Nextjs` provisions the us-east-1 ACM certificate and the Cloudflare
+record itself from the `domain` it is given, so `domainConfig()` in
+`sst.config.ts` is now where an app's hostname is decided:
+
+- Default: `‹app›.$APPS_DOMAIN` (falling back to the fleet's shared zone).
+- Promotion: set `APP_DOMAIN` to the apex. `www.` is added as a `redirects`
+  entry, so the apex stays the single canonical URL.
+
+`scripts/add-app-domain.sh` is deprecated and kept only while apps remain on
+Vercel; it is deleted once the last one migrates. The apex CNAME-flattening note
+above was a Vercel detail and no longer applies — SST creates the records it
+needs.

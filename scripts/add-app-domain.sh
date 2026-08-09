@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 #
+# DEPRECATED — Vercel only. New apps deploy to AWS (ADR-0023), where
+# `sst.aws.Nextjs` provisions the us-east-1 ACM certificate and the Cloudflare
+# record itself from the `domain` it is given. Set the hostname in
+# `sst.config.ts` instead: subdomain by default, apex via the APP_DOMAIN env
+# var. This script stays only until the last app has left Vercel, because the
+# ones still there depend on it. See docs/adr/0023-aws-sst-deploy.md and the
+# amendment to docs/adr/0019-subdomain-default-domains.md.
+#
 # Attach a domain to this app's Vercel project and create the matching
 # Cloudflare DNS record — unattended. Two modes:
 #

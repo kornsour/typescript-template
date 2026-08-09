@@ -37,6 +37,12 @@ export const env = createEnv({
 		// Set automatically by Vercel in deployed builds; never set it yourself.
 		// Drives the AI deployment boundary (src/lib/ai/deployment-boundary.ts).
 		VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
+
+		// ---- Deployment ----
+		// Set by the SST/AWS deploy (see sst.config.ts). Plays the role VERCEL_ENV
+		// used to: it is what tells the AI deployment boundary that this build is
+		// serving other people. See src/lib/ai/deployment-boundary.ts and ADR-0023.
+		DEPLOY_ENV: z.enum(["development", "preview", "production"]).optional(),
 	},
 	client: {
 		// Public base URL (used by better-auth, OAuth redirects, email links).
@@ -72,6 +78,7 @@ export const env = createEnv({
 		ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
 		OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 		VERCEL_ENV: process.env.VERCEL_ENV,
+		DEPLOY_ENV: process.env.DEPLOY_ENV,
 		NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 		NEXT_PUBLIC_GOOGLE_ENABLED: process.env.NEXT_PUBLIC_GOOGLE_ENABLED,
 		NEXT_PUBLIC_APPLE_ENABLED: process.env.NEXT_PUBLIC_APPLE_ENABLED,
