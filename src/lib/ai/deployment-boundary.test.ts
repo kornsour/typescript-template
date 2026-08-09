@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { assertAiDeploymentBoundary, assertSubscriptionModelAllowed } from "./deployment-boundary";
+import {
+	assertAiDeploymentBoundary,
+	assertSubscriptionModelAllowed,
+	resolveDeployedEnv,
+} from "./deployment-boundary";
 
 /**
  * These tests guard the terms-of-use boundary from ADR-0022: subscription
@@ -105,5 +109,75 @@ describe("assertAiDeploymentBoundary", () => {
 				...keys,
 			}),
 		).not.toThrow();
+	});
+});
+
+/**
+ * The AWS/SST target (ADR-0023) has no VERCEL_ENV. These tests pin the two
+ * signals that replaced it, so moving off Vercel can't silently disarm the
+ * guards above.
+ */
+describe("deployment signals beyond Vercel", () => {
+	it("treats DEPLOY_ENV as a deployment for subscription models", () => {
+		expect(() =>
+			assertSubscriptionModelAllowed("claude-code/opus", {
+				nodeEnv: "development",
+				vercelEnv: undefined,
+				deployEnv: "production",
+			}),
+		).toThrow(/local-only/);
+	});
+
+	it("treats a Lambda runtime as a deployment for subscription models", () => {
+		expect(() =>
+			assertSubscriptionModelAllowed("codex/gpt-5.5", {
+				nodeEnv: "development",
+				vercelEnv: undefined,
+				isLambda: true,
+			}),
+		).toThrow(/local-only/);
+	});
+
+	it("still allows subscription models with no deployment signal at all", () => {
+		expect(() =>
+			assertSubscriptionModelAllowed("claude-code/opus", {
+				nodeEnv: "development",
+				vercelEnv: undefined,
+				deployEnv: undefined,
+				isLambda: false,
+			}),
+		).not.toThrow();
+	});
+
+	it("rejects a subscription model configured in an SST stage", () => {
+		expect(() =>
+			assertAiDeploymentBoundary({
+				vercelEnv: undefined,
+				deployEnv: "preview",
+				configuredModelIds: ["claude-code/opus"],
+				hasAnthropicKey: true,
+				hasOpenAiKey: true,
+			}),
+		).toThrow(/forbidden in deployed environments/);
+	});
+
+	it("requires the API key in an SST production stage", () => {
+		expect(() =>
+			assertAiDeploymentBoundary({
+				vercelEnv: undefined,
+				deployEnv: "production",
+				configuredModelIds: ["anthropic/claude-opus-4-8"],
+				hasAnthropicKey: false,
+				hasOpenAiKey: false,
+			}),
+		).toThrow(/ANTHROPIC_API_KEY/);
+	});
+
+	it("treats an unlabelled Lambda as production, the strictest case", () => {
+		expect(resolveDeployedEnv({ vercelEnv: undefined, deployEnv: undefined, isLambda: true })).toBe(
+			"production",
+		);
+		expect(resolveDeployedEnv({ vercelEnv: "preview", deployEnv: "production" })).toBe("preview");
+		expect(resolveDeployedEnv({})).toBeUndefined();
 	});
 });

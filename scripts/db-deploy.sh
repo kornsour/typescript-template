@@ -10,10 +10,18 @@
 # local `pnpm build`, CI's placeholder-DB build — it's a no-op by default so
 # those don't require a live database.
 #
+# On the AWS/SST target (ADR-0023) there is no build-time hook: `sst deploy`
+# runs `next build` on a machine where VERCEL is unset, so this correctly skips
+# there rather than migrating twice. The deploy workflow instead invokes this
+# script as an explicit step with FORCE_DB_MIGRATIONS=1 *before* `sst deploy`,
+# so the schema lands ahead of the code that needs it. See
+# .github/workflows/deploy.yml and docs/adr/0023-aws-sst-deploy.md.
+#
 # Escape hatches:
 #   SKIP_DB_MIGRATIONS=1   force-skip, even on Vercel (e.g. a hotfix build
 #                          where you've already migrated by hand)
-#   FORCE_DB_MIGRATIONS=1  force-run locally, to test the full deploy path
+#   FORCE_DB_MIGRATIONS=1  force-run where VERCEL is unset — the AWS deploy
+#                          step, or locally to test the full deploy path
 #                          against your local Postgres before pushing
 #
 # See docs/maintenance/database-migrations.md.
@@ -28,7 +36,7 @@ if [ "${SKIP_DB_MIGRATIONS:-}" = "1" ]; then
 fi
 
 if [ -z "${VERCEL:-}" ] && [ "${FORCE_DB_MIGRATIONS:-}" != "1" ]; then
-	echo "→ Skipping DB migrations (not a Vercel build; set FORCE_DB_MIGRATIONS=1 to run locally)"
+	echo "→ Skipping DB migrations (not a Vercel build; set FORCE_DB_MIGRATIONS=1 to run here — the AWS deploy workflow does exactly that)"
 	exit 0
 fi
 

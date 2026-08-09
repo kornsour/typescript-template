@@ -9,6 +9,7 @@ import {
 	LoadAPIKeyError,
 } from "ai";
 import type { z } from "zod/v4";
+import { isLambdaRuntime } from "@/db/driver";
 import { env } from "@/env";
 import { assertAiDeploymentBoundary, assertSubscriptionModelAllowed } from "./deployment-boundary";
 import { modelName, modelTier } from "./model-id";
@@ -22,9 +23,15 @@ import { modelName, modelTier } from "./model-id";
 
 // Import-time boundary: a deployed build with a subscription model configured,
 // or a production deploy missing the API key its model needs, fails at boot
-// instead of on the first user request. No-op outside Vercel environments.
+// instead of on the first user request. No-op in local development.
+//
+// Three deployment signals, not one: VERCEL_ENV, DEPLOY_ENV (set by
+// sst.config.ts) and the Lambda runtime marker. Moving off Vercel (ADR-0023)
+// would otherwise have silently disarmed this guard.
 assertAiDeploymentBoundary({
 	vercelEnv: env.VERCEL_ENV,
+	deployEnv: env.DEPLOY_ENV,
+	isLambda: isLambdaRuntime(process.env),
 	configuredModelIds: [env.AI_MODEL, env.AI_MODEL_FALLBACK].filter((id): id is string =>
 		Boolean(id),
 	),

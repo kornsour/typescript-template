@@ -28,7 +28,8 @@
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "smoke": "node scripts/render-smoke.mts",
-    "smoke:build": "next build && node scripts/render-smoke.mts"
+    "smoke:build": "next build && node scripts/render-smoke.mts",
+    "sst:check": "sst install"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.23",
@@ -61,6 +62,7 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.10",
     "google-auth-library": "^10.9.1",
+    "sst": "^4.17.1",
     "tailwindcss": "^4",
     "typescript": "^6",
     "vitest": "^4.1.10"

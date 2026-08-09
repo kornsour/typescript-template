@@ -1,5 +1,15 @@
 # Deployment (Vercel + Neon)
 
+> **This page describes the Vercel path, which is being retired.** New apps
+> deploy to AWS with SST v4 + OpenNext — see
+> [ADR-0023](../adr/0023-aws-sst-deploy.md), `sst.config.ts` and
+> `.github/workflows/deploy.yml`. In short: `pnpm sst:check` validates the
+> config, secrets are `sst.Secret` rather than Vercel env vars, the hostname is
+> set in `sst.config.ts` (subdomain by default, apex via `APP_DOMAIN`) instead of
+> by `scripts/add-app-domain.sh`, and migrations run as an explicit deploy step
+> rather than from the build. This page is kept while apps remain on Vercel and
+> will be rewritten as they migrate.
+
 ## First deploy
 
 ```bash

@@ -16,7 +16,31 @@ export type AiRuntime = {
 	nodeEnv: string;
 	/** "development" | "preview" | "production" — set by Vercel, unset locally. */
 	vercelEnv: string | undefined;
+	/** The same signal for the AWS/SST target (env.DEPLOY_ENV). See ADR-0023. */
+	deployEnv?: string | undefined;
+	/** True inside a Lambda execution environment. See src/db/driver.ts. */
+	isLambda?: boolean;
 };
+
+/**
+ * "Is this build serving other people?" — one answer, three sources.
+ *
+ * VERCEL_ENV was the only signal when this app ran on Vercel. Moving to AWS
+ * (ADR-0023) removed it, which would have silently disarmed every guard below,
+ * so DEPLOY_ENV (set by sst.config.ts) and the Lambda runtime marker were added
+ * alongside it. All three are checked; none replaces another.
+ */
+export function resolveDeployedEnv(input: {
+	vercelEnv?: string | undefined;
+	deployEnv?: string | undefined;
+	isLambda?: boolean;
+}): string | undefined {
+	if (input.vercelEnv) return input.vercelEnv;
+	if (input.deployEnv) return input.deployEnv;
+	// A Lambda with no explicit stage is still a deployment; treat it as the
+	// strictest case rather than the most permissive.
+	return input.isLambda ? "production" : undefined;
+}
 
 /**
  * Call-time guard: a subscription model may only resolve during local `next
@@ -25,7 +49,7 @@ export type AiRuntime = {
  * check is belt-and-suspenders for anything that overrides NODE_ENV.
  */
 export function assertSubscriptionModelAllowed(modelId: string, runtime: AiRuntime): void {
-	if (runtime.nodeEnv !== "development" || runtime.vercelEnv) {
+	if (runtime.nodeEnv !== "development" || resolveDeployedEnv(runtime)) {
 		throw new Error(
 			`Model "${modelId}" uses a personal subscription login, which is local-only and ` +
 				`cannot run in a deployed build. Set AI_MODEL to an "anthropic/*" or "openai/*" id ` +
@@ -36,6 +60,10 @@ export function assertSubscriptionModelAllowed(modelId: string, runtime: AiRunti
 
 export type AiBoundaryInput = {
 	vercelEnv: string | undefined;
+	/** The AWS/SST equivalent of vercelEnv (env.DEPLOY_ENV). See ADR-0023. */
+	deployEnv?: string | undefined;
+	/** True inside a Lambda execution environment. */
+	isLambda?: boolean;
 	/** Every configured model id (AI_MODEL, AI_MODEL_FALLBACK, …), unset ones omitted. */
 	configuredModelIds: readonly string[];
 	hasAnthropicKey: boolean;
@@ -52,11 +80,13 @@ export type AiBoundaryInput = {
  *     is also a boot-time failure, so a missing key surfaces on deploy rather
  *     than on the first user request.
  *
- * Keyed on vercelEnv (not NODE_ENV) so local production builds — `pnpm build`,
- * `pnpm smoke` — still work without any AI configuration gymnastics.
+ * Keyed on the deployment signals (not NODE_ENV) so local production builds —
+ * `pnpm build`, `pnpm smoke` — still work without any AI configuration
+ * gymnastics.
  */
 export function assertAiDeploymentBoundary(input: AiBoundaryInput): void {
-	if (!input.vercelEnv) return;
+	const deployedEnv = resolveDeployedEnv(input);
+	if (!deployedEnv) return;
 
 	for (const id of input.configuredModelIds) {
 		if (isSubscriptionModel(id)) {
@@ -68,7 +98,7 @@ export function assertAiDeploymentBoundary(input: AiBoundaryInput): void {
 		}
 	}
 
-	if (input.vercelEnv !== "production") return;
+	if (deployedEnv !== "production") return;
 
 	for (const id of input.configuredModelIds) {
 		const tier = modelTier(id);

@@ -3,9 +3,9 @@
 # Rebrand a fresh copy of this template to a new app name.
 # Usage:  bash scripts/rename-app.sh <new-app-name>   (e.g. my-cool-app)
 #
-# Updates package.json name, the app title in the layout metadata, README, and
-# the local dev DB name in .env(.example). Run once, right after copying the
-# template. Review the diff afterward.
+# Updates package.json name, the SST app name, the app title in the layout
+# metadata, README, and the local dev DB name in .env(.example). Run once, right
+# after copying the template. Review the diff afterward.
 #
 set -euo pipefail
 
@@ -33,6 +33,15 @@ const [, , name, dbName, title] = process.argv;
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
 pkg.name = name;
 fs.writeFileSync("package.json", `${JSON.stringify(pkg, null, 2)}\n`);
+
+// SST app name — must track package.json, since sst.config.ts cannot import it
+// (SST rejects top-level imports there).
+const sstConfig = "sst.config.ts";
+if (fs.existsSync(sstConfig)) {
+	let t = fs.readFileSync(sstConfig, "utf8");
+	t = t.replace(/^const APP_NAME = ".*";$/m, `const APP_NAME = "${name}";`);
+	fs.writeFileSync(sstConfig, t);
+}
 
 // layout metadata title
 const layout = "src/app/layout.tsx";
