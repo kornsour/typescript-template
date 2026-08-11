@@ -8,6 +8,15 @@ set -euo pipefail
 
 INPUT="$(cat)"
 
+# Fast path: this hook matches *every* Bash call, but only commits are gated, so
+# bail before paying for a cold Node start. "commit" survives JSON escaping, and
+# this is a deliberate superset of the real check below — a non-commit command
+# that merely mentions the word costs one wasted parse, never a skipped gate.
+case "$INPUT" in
+	*commit*) ;;
+	*) exit 0 ;;
+esac
+
 # Extract the bash command being run (Node is always available in this repo).
 CMD="$(printf '%s' "$INPUT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);process.stdout.write(j.tool_input?.command??"")}catch{process.stdout.write("")}})')"
 
