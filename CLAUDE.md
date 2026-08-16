@@ -16,6 +16,17 @@ add a superseding ADR when you change a decision. Setup guides are in
 `docs/setup/`, the CLI cheat-sheet in `docs/cli-reference.md`, the security
 posture in `docs/security.md`, and operational runbooks in `docs/maintenance/`.
 
+## Infrastructure and AWS ownership
+
+Read [`docs/agent.md`](./docs/agent.md) before adding or changing cloud
+resources. This repository owns deployable application infrastructure; the
+private [organization IaC operating model](https://github.com/Lurking-Walrus/.github-private/blob/main/docs/IAC-OPERATING-MODEL.md)
+owns account boundaries, identity, shared domains, and organization guardrails.
+Use repository-and-environment-scoped GitHub OIDC roles, keep secrets out of
+source and logs, tag managed resources, and include an IaC plan plus cost and
+rollback impact in the PR. Do not provision external or billable resources
+without explicit authority.
+
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router, Turbopack) · **Language**: TypeScript (strict)
