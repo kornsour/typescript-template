@@ -22,5 +22,6 @@ Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
   skill orchestrates them.
 - **Infrastructure:** read [`docs/agent.md`](./docs/agent.md) before adding
   cloud resources. Application infra belongs here; organization/account
-  guardrails belong in the private Lurking Walrus IaC source of truth.
+  guardrails belong in the private source named in the derived project's
+  `PROJECT_CONTEXT.md`.
 - **Security:** `docs/security.md`; run `/security-review` before shipping.
