@@ -193,8 +193,10 @@ Verifies the sending domain, aligns DKIM/SPF/DMARC, requests sandbox exit,
 scopes an IAM policy to `ses:SendEmail` on that identity only, and wires
 bounce/complaint handling. The full CLI checklist (with console fallbacks) is
 in [`docs/setup/aws-ses.md`](../../../docs/setup/aws-ses.md) — walk it rather
-than re-deriving the commands. App side: set `AWS_REGION` + `EMAIL_FROM` (and
-`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` on Vercel).
+than re-deriving the commands. App side: set `AWS_REGION` + `EMAIL_FROM` as
+deployment configuration. If an external runtime must call SES directly, keep
+its narrowly scoped credential only in that runtime's encrypted secret store;
+GitHub Actions deployments use OIDC and never receive static AWS keys.
 
 ## 8. Support-form anti-spam — Cloudflare Turnstile (optional, free)
 

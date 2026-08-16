@@ -114,10 +114,13 @@ environments) and register the production OAuth redirect URIs.
 3. Add the Stripe **live** webhook endpoint + signing secret.
 4. Confirm `AWS_REGION` + `EMAIL_FROM` are set and `EMAIL_FROM` is a verified SES
    identity/domain in that region (email verification is required in prod).
-   Vercel has no IAM role to fall back on, so the AWS SDK's default credential
-   chain needs `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` set as env vars too
-   (app code has no provider-specific logic either way). Full SES provisioning
-   + hardening checklist (DKIM/SPF/DMARC, sandbox exit, least-privilege IAM,
+   Store ordinary configuration such as `AWS_REGION` and `EMAIL_FROM` in the
+   deployment environment's configuration variables. If a Vercel-hosted runtime
+   must call SES directly, its narrowly scoped AWS credential is a runtime
+   secret: store only the credential value in Vercel's encrypted environment
+   secrets, never in source, `.env.example`, GitHub Actions, or this guide.
+   Prefer GitHub OIDC for deployment automation. Full SES provisioning +
+   hardening checklist (DKIM/SPF/DMARC, sandbox exit, least-privilege IAM,
    bounce handling): [`aws-ses.md`](./aws-ses.md).
 5. Schema migrations apply automatically — `pnpm build` runs `pnpm db:deploy`
    before `next build` on every Vercel deploy (gated on the `VERCEL` env var,
