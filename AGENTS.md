@@ -20,4 +20,7 @@ Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
   superseding ADR when you change a decision.
 - **Provisioning:** use the CLIs in `docs/cli-reference.md`; the `provision-app`
   skill orchestrates them.
+- **Infrastructure:** read [`docs/agent.md`](./docs/agent.md) before adding
+  cloud resources. Application infra belongs here; organization/account
+  guardrails belong in the private Lurking Walrus IaC source of truth.
 - **Security:** `docs/security.md`; run `/security-review` before shipping.

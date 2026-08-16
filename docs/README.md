@@ -12,6 +12,8 @@ Project documentation for this template and the apps built from it.
 - [`cli-reference.md`](./cli-reference.md) — the CLIs used to operate the app
   (vercel, neonctl, gcloud, gh, stripe, cf, aws) and the commands agents actually need.
 - [`security.md`](./security.md) — the security posture and pre-deploy checklist.
+- [`agent.md`](./agent.md) — cloud/IaC ownership, deployment boundaries, and
+  the private organization-level source of truth.
 - [`legal.md`](./legal.md) — the legal-disclosure pages (ToS, Privacy, AI
   Disclosure, etc.), what's scaffolded vs. what still needs an attorney, and a
   pre-launch checklist
