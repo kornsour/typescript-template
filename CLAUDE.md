@@ -212,28 +212,9 @@ creating billable/public resources.
   page (`home.spec`), password-reset pages (`password-reset.spec`), the
   verification-resend page + dashboard resend button (`verify-email.spec`), and
   the support form (`support.spec`). Shared sign-up helper in `e2e/helpers.ts`.
-- **E2E in CI is opt-in per PR.** It runs automatically only on Dependabot PRs
-  (and manual dispatch); regular PRs skip it unless labelled `run-e2e` — see
-  [ADR-0017](./docs/adr/0017-e2e-in-ci-for-dependabot.md). **When you open/modify
-  a PR, add the label if the change touches a flow a spec exercises**, so CI
-  runs E2E before merge:
-  `gh pr edit <n> --add-label run-e2e`. Add it when the PR changes any of:
-  - Auth: `src/components/auth-form.tsx`, `src/app/(auth)/**`, `src/lib/auth.ts`,
-    `src/lib/auth/**`, `src/proxy.ts`, `src/app/(app)/dashboard/**`
-  - Password reset: `src/app/(auth)/{forgot,reset}-password/**`,
-    `src/components/reset-password-form.tsx`
-  - Email verification: `src/app/(auth)/verify-email/**`,
-    `src/components/resend-verification-button.tsx`, `emailVerification` in `auth.ts`
-  - Support: `src/app/support/**`, `src/components/support-form.tsx`,
-    `src/lib/support/**`, `src/components/site-footer.tsx`
-  - The design system / shared UI in a way that changes text, roles, labels, or
-    placeholders those specs select on (e.g. `@kornorg/design-system` bumps).
-
-  **Skip the label** for docs/ADR/CI-config-only changes and lib changes unrelated
-  to those flows — the always-on checks (Biome, type-check, Vitest, build, render
-  smoke) already cover them. When in doubt, add it (a needless run is cheaper than
-  a missed regression). Keep specs in sync with the app; CI enforces it for the
-  flows they cover.
+- **E2E is local-only.** GitHub Actions never runs Playwright, including for
+  Dependabot and manual dispatches. Run `pnpm e2e` before merging changes to a
+  covered flow or releasing; see [ADR-0022](./docs/adr/0022-e2e-local-only.md).
 - Render smoke: `scripts/render-smoke.mts` boots a **production** build
   (`next start`) and asserts key routes server-render real content under the real
   strict CSP — catching prod-only blank-screen bugs that dev (permissive CSP) and

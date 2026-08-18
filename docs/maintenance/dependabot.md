@@ -35,8 +35,6 @@ prefixed by the caller job name. Required status checks on the `main` ruleset:
   the most important guard for unattended merges).
 - **`ci / Lint & format (Biome)`**, **`ci / Type check`**,
   **`ci / Unit tests (Vitest)`**, **`ci / Build`**, **`ci / DB migration check`**.
-- **`E2E gate`** — Playwright runs for real on Dependabot PRs, from this repo's
-  standalone `e2e.yml` (see [ADR-0017](../adr/0017-e2e-in-ci-for-dependabot.md)).
 
 CodeQL (default code scanning) also runs on PRs but is intentionally **not**
 required — it scans our code, not the bumped dependency, and requiring it risks
@@ -49,8 +47,7 @@ want a hard security gate.
   `gh pr merge --disable-auto <url>`, or convert it to a draft.
 - **Force a major through** (after reviewing): approve and
   `gh pr merge --squash <url>` manually.
-- **Run E2E on a non-Dependabot PR**: add the **`run-e2e`** label (or trigger
-  `e2e.yml` via `workflow_dispatch`).
+- **Run E2E locally before merging a covered change**: `pnpm e2e`.
 
 ## When the lockfile breaks despite the guard
 

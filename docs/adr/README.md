@@ -45,8 +45,9 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0014](./0014-content-security-policy.md) | Add a nonce-based Content-Security-Policy in middleware | Accepted |
 | [0015](./0015-legal-disclosures-scaffolding.md) | Legal-disclosure page scaffolding (ToS, Privacy, AUP, AI Disclosure, Cookies) | Accepted |
 | [0016](./0016-database-migration-automation.md) | Automated migration deploy, CI validation, and optional Neon preview branches | Accepted |
-| [0017](./0017-e2e-in-ci-for-dependabot.md) | Run E2E in CI for Dependabot PRs (auto-merge safety net) | Accepted |
+| [0017](./0017-e2e-in-ci-for-dependabot.md) | Run E2E in CI for Dependabot PRs (auto-merge safety net) | Superseded by ADR-0022 |
 | [0018](./0018-reusable-ci-workflows.md) | Centralize CI & Dependabot automation in reusable workflows | Accepted |
 | [0019](./0019-subdomain-default-domains.md) | New apps default to a subdomain of one shared zone | Accepted |
 | [0020](./0020-design-system.md) | UI on the @kornorg/design-system package | Accepted |
 | [0021](./0021-production-render-smoke.md) | Production-render smoke test in CI | Accepted |
+| [0022](./0022-e2e-local-only.md) | Run Playwright E2E locally, never in GitHub Actions | Accepted |

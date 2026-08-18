@@ -33,8 +33,7 @@
 					{ "context": "ci / Unit tests (Vitest)" },
 					{ "context": "ci / Build" },
 					{ "context": "ci / DB migration check" },
-					{ "context": "lockfile / integrity" },
-					{ "context": "E2E gate" }
+					{ "context": "lockfile / integrity" }
 				]
 			}
 		}
