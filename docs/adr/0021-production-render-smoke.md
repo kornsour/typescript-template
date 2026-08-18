@@ -12,7 +12,7 @@ caught it:
 
 - `pnpm dev` serves a **permissive** CSP, so the page renders fine locally.
 - The Playwright E2E suite boots the **dev server** (`webServer: pnpm dev` in
-  `playwright.config.ts`) and is Dependabot-gated in CI ([ADR-0017](./0017-e2e-in-ci-for-dependabot.md)),
+  `playwright.config.ts`) locally ([ADR-0022](./0022-e2e-local-only.md)),
   so it never exercised the production CSP or the static/dynamic route split.
 - Vitest/type-check/build don't render pages over HTTP.
 
