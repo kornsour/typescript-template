@@ -24,15 +24,14 @@ the dashboard:
 ## Wire them in
 
 ```bash
-# .env (local) — and mirror to Vercel for preview/production:
+# .env (local)
 NEXT_PUBLIC_TURNSTILE_SITE_KEY="0x4AAA..."
 TURNSTILE_SECRET_KEY="0x4AAA..."
 ```
 
-```bash
-vercel env add NEXT_PUBLIC_TURNSTILE_SITE_KEY production
-vercel env add TURNSTILE_SECRET_KEY production
-```
+Deployed: add `NEXT_PUBLIC_TURNSTILE_SITE_KEY` as a plain `environment` entry
+and `TURNSTILE_SECRET_KEY` as an `sst.Secret` in `sst.config.ts` — see
+[deployment.md](./deployment.md).
 
 Both keys are needed for the feature to do anything useful: the site key
 renders the widget (`src/components/turnstile-widget.tsx`), the secret key

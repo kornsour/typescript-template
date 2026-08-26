@@ -14,7 +14,7 @@ Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
   not the middleware alone.
 - **DB:** edit `src/db/schema.ts`; `pnpm db:push` (dev) / `db:generate`+`db:migrate`
   (prod). Never hand-edit `drizzle/`. CI fails a PR that changes `schema.ts`
-  without a matching migration file; Vercel builds auto-apply pending
+  without a matching migration file; the deploy workflow auto-applies pending
   migrations via `db:deploy`. See `docs/maintenance/database-migrations.md`.
 - **Foundational changes:** read the relevant ADR in `docs/adr/` first; add a
   superseding ADR when you change a decision.

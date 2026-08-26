@@ -10,7 +10,7 @@ Project documentation for this template and the apps built from it.
   [Stripe](./setup/stripe.md), [deployment](./setup/deployment.md),
   [Workspace support group](./setup/workspace-support-group.md).
 - [`cli-reference.md`](./cli-reference.md) — the CLIs used to operate the app
-  (vercel, neonctl, gcloud, gh, stripe, cf, aws) and the commands agents actually need.
+  (sst, neonctl, gcloud, gh, stripe, cf, aws) and the commands agents actually need.
 - [`security.md`](./security.md) — the security posture and pre-deploy checklist.
 - [`agent.md`](./agent.md) — cloud/IaC ownership, deployment boundaries, and
   the private organization-level source of truth.

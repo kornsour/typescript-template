@@ -84,8 +84,9 @@ pnpm db:push          # push schema (dev)
 pnpm db:generate      # generate a migration
 pnpm db:migrate       # run migrations (prod path)
 pnpm db:studio        # Drizzle Studio
-pnpm db:deploy        # applies pending migrations; runs automatically as part
-                      # of `pnpm build` on Vercel — see docs/maintenance/database-migrations.md
+pnpm db:deploy        # applies pending migrations; runs automatically as an
+                      # explicit pre-deploy step in .github/workflows/deploy.yml
+                      # — see docs/maintenance/database-migrations.md
 ```
 
 ## Code Style
@@ -108,9 +109,10 @@ pnpm db:deploy        # applies pending migrations; runs automatically as part
 - `db:push` for prototyping; `db:generate` + `db:migrate` for production. Never
   edit `drizzle/` migrations by hand.
 - **Migrations are automated end to end** (see [ADR-0016](./docs/adr/0016-database-migration-automation.md)
-  and `docs/maintenance/database-migrations.md`): `pnpm build` applies pending
-  migrations before `next build` on every Vercel deploy; CI fails a PR that
-  changes `schema.ts` without a matching migration file under `drizzle/`; an
+  and `docs/maintenance/database-migrations.md`): `.github/workflows/deploy.yml`
+  applies pending migrations before `sst deploy` on every push to `main`; CI
+  fails a PR that changes `schema.ts` without a matching migration file under
+  `drizzle/`; an
   optional per-PR Neon branch + migration workflow is available once
   `NEON_PROJECT_ID` is set. A schema change still needs
   `pnpm db:generate --name <name>` and a commit — the deploy step only applies
@@ -194,10 +196,10 @@ pnpm db:deploy        # applies pending migrations; runs automatically as part
 
 ## Provisioning & CLIs
 
-Agents can use these CLIs (see `docs/cli-reference.md`): **vercel** (deploy/env),
+Agents can use these CLIs (see `docs/cli-reference.md`): **sst** (AWS deploy),
 **neonctl** (Postgres), **gcloud** (Google OAuth project), **gh** (repo/secrets),
-**stripe** (billing), **cf** (Cloudflare DNS, for pointing a custom domain at
-Vercel). The **`provision-app`** skill orchestrates setting up a new
+**stripe** (billing), **cf** (Cloudflare DNS records SST doesn't manage
+itself). The **`provision-app`** skill orchestrates setting up a new
 app's resources end-to-end; **`rename-app`** rebrands a fresh copy. Confirm before
 creating billable/public resources.
 

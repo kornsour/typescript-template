@@ -1,6 +1,6 @@
 ---
 name: provision-app
-description: Provision the external resources a new app from this template needs — Neon Postgres, Google/Apple OAuth, Stripe billing, Vercel project + env, a custom domain, a support@ Google Workspace group, and GitHub repo/secrets — using the vercel, neonctl, gcloud, gh, stripe, cf, and aws CLIs. Use when setting up a fresh app, wiring a new environment, or filling in .env for auth/billing/deploy.
+description: Provision the external resources a new app from this template needs — Neon Postgres, Google/Apple OAuth, Stripe billing, AWS deploy via SST, a custom domain, a support@ Google Workspace group, and GitHub repo/secrets — using the neonctl, gcloud, gh, stripe, cf, sst, and aws CLIs. Use when setting up a fresh app, wiring a new environment, or filling in .env for auth/billing/deploy.
 ---
 
 # Provision a new app
@@ -8,11 +8,12 @@ description: Provision the external resources a new app from this template needs
 Bring a fresh copy of this template from "runs locally" to "deployed with auth +
 billing". Work top-down; each step is independent and safe to skip if that
 feature isn't needed yet. **Confirm with the user before creating billable or
-public resources** (Vercel projects, Neon projects, Stripe products, domains).
+public resources** (AWS resources, Neon projects, Stripe products, domains).
 
 Everything the app reads is validated in `src/env.ts` and documented in
-`.env.example`. After each step, put the resulting keys in `.env` (local) and in
-Vercel (deployed) — see step 5.
+`.env.example`. After each step, put the resulting keys in `.env` (local) and
+into `sst.config.ts` as an `sst.Secret` or `environment` entry (deployed) — see
+step 5.
 
 ## 0. Local baseline (no external accounts)
 
@@ -32,10 +33,11 @@ neonctl connection-string --project-id <id> --database-name neondb
 # Optional: a separate branch for preview
 neonctl branches create --project-id <id> --name preview
 ```
-Put the pooled connection string in Vercel as `DATABASE_URL` (step 5). The db
-client auto-selects the Neon driver from the `*.neon.tech` host — no code change.
-Migrations apply automatically at Vercel build/deploy time — see
-`docs/maintenance/database-migrations.md`.
+Set the pooled connection string as the `DatabaseUrl` `sst.Secret` and the
+`DATABASE_URL` repo secret used by the deploy workflow's migration step (step
+5). The db client auto-selects the Neon driver from the `*.neon.tech` host —
+no code change. Migrations apply automatically as an explicit deploy step —
+see `docs/maintenance/database-migrations.md`.
 
 Optional: set the `NEON_PROJECT_ID` repo variable and `NEON_API_KEY` repo
 secret (`gh variable set` / `gh secret set`) to turn on
@@ -95,7 +97,7 @@ stripe trigger checkout.session.completed   # smoke test
 In production, add the webhook endpoint `<APP_URL>/api/webhooks/stripe` in the
 Stripe dashboard and use its signing secret.
 
-## 5. Deploy — Vercel + GitHub
+## 5. Deploy — AWS (SST) + GitHub
 
 ```bash
 gh repo create <owner>/<app> --private --source . --push   # if not already on GitHub
@@ -105,70 +107,64 @@ gh repo create <owner>/<app> --private --source . --push   # if not already on G
 gh label create dependencies -R <owner>/<app> --color 0366d6 --description "Dependency updates" --force
 gh label create ci           -R <owner>/<app> --color fbca04 --description "CI / build configuration" --force
 
-# Enforce the merge gate: PR required + green CI, strict (issue #60 item 4). A
-# ruleset lives in repo settings, so a generated repo does NOT inherit the
-# template's — apply the codified one:
+# Enforce the merge gate: PR required + green CI, strict. A ruleset lives in
+# repo settings, so a generated repo does NOT inherit the template's — apply
+# the codified one:
 scripts/setup-branch-protection.sh <owner>/<app>
-
-vercel link                                                 # link this dir to a Vercel project
 ```
 
-**Env vars — set them for BOTH `production` AND `preview`.** Provisioning only
-prod is a common first-deploy trap: the first preview / deploy-preview build
-then fails at env validation because the required vars are missing for the
-preview environment (issue #60 item 3). `vercel env add` takes multiple
-environments at once:
+`.github/workflows/deploy.yml` no-ops until it has what it needs:
 
 ```bash
-vercel env add DATABASE_URL      production preview   # Neon pooled string (ideally a preview branch, below)
-vercel env add BETTER_AUTH_SECRET production preview  # a NEW `openssl rand -base64 32`
-# …GOOGLE_*, APPLE_*, STRIPE_*, AWS_REGION, EMAIL_FROM, NEXT_PUBLIC_APP_URL, etc.
-vercel deploy --prod
+gh variable set AWS_DEPLOY_ROLE_ARN -R <owner>/<app> --body "<role-arn>"   # trusts GitHub's OIDC provider
+gh secret set DATABASE_URL          -R <owner>/<app> --body "<neon-connection-string>"
+gh secret set CLOUDFLARE_API_TOKEN  -R <owner>/<app> --body "<token>"     # scoped to Zone:DNS:Edit
+gh secret set CLOUDFLARE_ZONE_ID    -R <owner>/<app> --body "<zone-id>"
 ```
 
-Migrations apply automatically during the Vercel build (`db:deploy` →
-`scripts/db-migrate.ts`), which sets the managed-Postgres TLS option and prints
-the real error if a connection fails. A local `.env` is kept out of the upload
-by `.vercelignore` and is never sourced on Vercel, so it can't clobber the
-platform's `DATABASE_URL` (issue #60 items 1–2).
+App secrets live in SST's encrypted parameter store, not GitHub — set once per
+stage:
 
-For an **isolated preview database** instead of pointing preview at prod, set the
-`NEON_PROJECT_ID` variable + `NEON_API_KEY` secret (step 1) — `neon-preview.yml`
-then gives each PR its own migrated branch. For non-PR preview deploys, use a
-long-lived Neon `preview` branch's connection string as the preview
-`DATABASE_URL` above.
+```bash
+npx sst secret set DatabaseUrl "<neon-connection-string>" --stage production
+npx sst secret set BetterAuthSecret "$(openssl rand -base64 32)" --stage production
+# …other server secrets (STRIPE_SECRET_KEY, ANTHROPIC_API_KEY, etc.) the same way;
+# plain (non-secret) vars — AWS_REGION, EMAIL_FROM, NEXT_PUBLIC_* — go in
+# sst.config.ts's `environment` block instead.
+pnpm sst:check                        # validates sst.config.ts (runs `sst install`)
+```
 
-Prefer the session's Vercel skills when available: `vercel:env` to sync,
-`vercel:deploy` to ship, `vercel:bootstrap` to link + provision Marketplace
-integrations (Neon is available as a Vercel Marketplace integration too).
+Pushing to `main` runs the deploy workflow: migrations first
+(`pnpm db:deploy` with `FORCE_DB_MIGRATIONS=1`, against the `DATABASE_URL` repo
+secret), then `pnpm sst deploy --stage production`. See
+[`docs/setup/deployment.md`](../../../docs/setup/deployment.md) and
+[ADR-0023](../../../docs/adr/0023-aws-sst-deploy.md).
 
-**Keep it non-interactive.** A few CLIs prompt (org/account/scope selection) and
-stall an unattended run (issue #60 item 5). Pass the scope explicitly:
-`vercel --scope <team> …` (or run `vercel link` once to record it),
-`gh` respects `GH_REPO`/`-R <owner>/<repo>`, and `neonctl --output json` avoids
-its interactive picker.
+For an **isolated non-production database** rather than reusing the production
+one, set the `NEON_PROJECT_ID` variable + `NEON_API_KEY` secret (step 1) —
+`neon-preview.yml` then gives each PR its own migrated branch in CI (which
+catches a broken migration before merge; it's separate from the deploy
+workflow above and doesn't deploy the app itself).
 
-### Custom domain — Vercel + Cloudflare
+**Keep it non-interactive.** A few CLIs prompt (org/account/scope selection)
+and stall an unattended run. `gh` respects `GH_REPO`/`-R <owner>/<repo>`, and
+`neonctl --output json` avoids its interactive picker.
+
+### Custom domain — SST + Cloudflare
 
 Default: a **subdomain of one shared zone**, so a new app never blocks on buying
-a domain ([ADR-0019](../../../docs/adr/0019-subdomain-default-domains.md)). One
-script attaches it to the linked project and creates the DNS record:
+a domain ([ADR-0019](../../../docs/adr/0019-subdomain-default-domains.md)).
+`domainConfig()` in `sst.config.ts` decides the hostname, and `sst deploy`
+provisions the us-east-1 ACM certificate and the Cloudflare DNS record itself —
+nothing to run by hand:
 
-```bash
-APPS_DOMAIN=<your-shared-zone> scripts/add-app-domain.sh <app>   # → <app>.<your-shared-zone>
-```
+- Default: `<app>.$APPS_DOMAIN`.
+- Promotion to a dedicated apex domain: set the `APP_DOMAIN` env var before
+  deploying. `www.<domain>` redirects to the apex.
 
-Promote an app to its own marketed apex domain later (adds apex + www, via a
-flattened CNAME so there's no anycast IP to rot):
-
-```bash
-scripts/add-app-domain.sh --apex <domain>
-```
-
-Then set `NEXT_PUBLIC_APP_URL` to the new HTTPS URL in Vercel (both envs) and
-register the production OAuth redirect URIs. The script keeps records **DNS only**
-(`proxied: false`) so Vercel can issue the cert; turn on Cloudflare's proxy
-afterward with SSL/TLS mode Full (strict). Details: `docs/cli-reference.md`.
+Then set `NEXT_PUBLIC_APP_URL` to the new HTTPS URL (via `sst.config.ts`'s
+`appUrl()`) and register the production OAuth redirect URIs. Details:
+[`docs/setup/deployment.md`](../../../docs/setup/deployment.md).
 
 ## 6. Support email — Google Workspace group (optional)
 
@@ -182,10 +178,10 @@ verification, worked around here) are in
 walk the user through that checklist rather than re-deriving the steps.
 
 The DNS records that step needs (domain-verification TXT, MX, DKIM) are still
-applied by hand today (issue #60 item 6). The ones with fixed values (MX,
-verification TXT) could be created with the same `cf` CLI
-`scripts/add-app-domain.sh` uses; DKIM has no API (its key is generated in the
-Admin Console), so that click stays manual.
+applied by hand today. The ones with fixed values (MX, verification TXT) could
+be created with the `cf` CLI (see
+[cli-reference.md](../../../docs/cli-reference.md)); DKIM has no API (its key
+is generated in the Admin Console), so that click stays manual.
 
 ## 7. Outbound email — AWS SES (optional; required for prod email verification)
 
@@ -204,11 +200,12 @@ The `/support` form already ships a honeypot + DB-backed rate limiting; for a
 public launch add the free Turnstile challenge. Keys come from the Cloudflare
 dashboard (no API on the free plan) — see
 [`docs/setup/turnstile.md`](../../../docs/setup/turnstile.md). Set
-`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` locally and on
-Vercel.
+`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` locally and wire
+them into `sst.config.ts` (`environment` / `sst.Secret`) for deployed builds.
 
 ## After provisioning
 
-- Update `.env` locally and mirror to Vercel; never commit `.env`.
+- Update `.env` locally and mirror secrets into `sst.config.ts` /
+  `npx sst secret set`; never commit `.env`.
 - Register real redirect URIs for the production domain.
 - Run `/security-review` before shipping and follow `docs/security.md`.

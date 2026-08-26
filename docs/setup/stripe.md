@@ -42,7 +42,10 @@ stripe trigger checkout.session.completed          # smoke test → a subscripti
 
 Add a webhook endpoint `<APP_URL>/api/webhooks/stripe` in the Stripe dashboard,
 subscribe to `checkout.session.completed` and `customer.subscription.*`, and use
-its **live** signing secret. Set all `STRIPE_*` + `NEXT_PUBLIC_STRIPE_*` in Vercel.
+its **live** signing secret. Wire `STRIPE_SECRET_KEY` and
+`STRIPE_WEBHOOK_SIGNING_SECRET` into `sst.config.ts` as `sst.Secret`s (the same
+pattern as `DatabaseUrl`/`BetterAuthSecret`) and the `NEXT_PUBLIC_STRIPE_*`
+values as plain `environment` entries — see [deployment.md](./deployment.md).
 
 ## How it fits together
 

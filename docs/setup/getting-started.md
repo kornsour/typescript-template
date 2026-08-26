@@ -6,7 +6,7 @@ From a fresh copy of the template to a running app in a few minutes.
 
 - Node ≥ 24 and pnpm (`corepack enable` so the pinned pnpm is used — [ADR-0002](../adr/0002-package-manager-pnpm-pinned.md))
 - Native Postgres for local dev: `brew install postgresql@17 && brew services start postgresql@17`
-- Optional CLIs for provisioning/deploy: `vercel`, `neonctl`, `gcloud`, `gh`, `stripe`
+- Optional CLIs for provisioning/deploy: `sst`, `neonctl`, `gcloud`, `gh`, `stripe`
   (see [cli-reference.md](../cli-reference.md))
 
 Run `pnpm preflight` any time to check what's installed and what's missing — it's
