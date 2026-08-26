@@ -18,6 +18,8 @@ Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
   migrations via `db:deploy`. See `docs/maintenance/database-migrations.md`.
 - **Foundational changes:** read the relevant ADR in `docs/adr/` first; add a
   superseding ADR when you change a decision.
+- **Archive:** `docs/archive/` holds superseded/historical docs only — it's
+  historical record, not current truth; don't use it to inform new work.
 - **Provisioning:** use the CLIs in `docs/cli-reference.md`; the `provision-app`
   skill orchestrates them.
 - **Infrastructure:** read [`docs/agent.md`](./docs/agent.md) before adding
