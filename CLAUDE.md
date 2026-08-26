@@ -15,6 +15,8 @@ Rationale for foundational choices lives in Architecture Decision Records under
 add a superseding ADR when you change a decision. Setup guides are in
 `docs/setup/`, the CLI cheat-sheet in `docs/cli-reference.md`, the security
 posture in `docs/security.md`, and operational runbooks in `docs/maintenance/`.
+`docs/archive/` holds superseded/historical documentation only — never use it
+to understand current state or guide new work.
 
 ## Infrastructure and AWS ownership
 

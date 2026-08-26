@@ -55,6 +55,8 @@ The _why_ behind the stack is in [ADRs](./docs/adr); provisioning + operations i
 [`docs/cli-reference.md`](./docs/cli-reference.md); security in
 [`docs/security.md`](./docs/security.md). Agents: see [`CLAUDE.md`](./CLAUDE.md)
 and the `provision-app` / `rename-app` skills in `.claude/skills/`.
+[`docs/archive/`](./docs/archive/) holds superseded/historical documentation —
+it's a record of the past, not a guide to the current project.
 
 > Uses pnpm pinned via `packageManager`. Run `corepack enable` once so your local
 > pnpm matches the project ([ADR-0002](./docs/adr/0002-package-manager-pnpm-pinned.md)).
