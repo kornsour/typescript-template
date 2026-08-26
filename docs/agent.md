@@ -21,8 +21,7 @@ central organization repository.
    role, data classification, budget, and rollback target in this repository's
    `PROJECT_CONTEXT.md` before an apply.
 3. Use GitHub OIDC with an exact repository and protected-environment trust.
-   Never add long-lived AWS keys to GitHub, Vercel, or application environment
-   files.
+   Never add long-lived AWS keys to GitHub or application environment files.
 4. Tag resources with `Application`, `Environment`, `Owner`, `ManagedBy`, and
    `Lifecycle`.
 

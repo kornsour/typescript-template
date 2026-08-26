@@ -29,39 +29,39 @@ git add src/db/schema.ts drizzle/
 git commit -m "Add user.bio"
 
 # 5. Push — the PR's Neon preview branch (if configured) gets migrated and
-#    schema-diffed automatically; merging to main deploys to Vercel, whose
-#    build applies the same migration to the real database before `next build`.
+#    schema-diffed automatically; merging to main triggers the deploy workflow,
+#    which applies the same migration to the real database before `sst deploy`.
 git push
 ```
 
 ## How deploy-time automation works
 
 - `pnpm build` runs `pnpm db:deploy` (`scripts/db-deploy.sh`) before `next build`.
-- That script only actually runs `drizzle-kit migrate` when `VERCEL` is set —
-  i.e. on a real Vercel build (preview or production), where `DATABASE_URL` is
-  a real, reachable database and env vars are already in the process
-  environment. Plain local `pnpm build` and CI's build job (fake placeholder
-  `DATABASE_URL`) skip it by default.
+- That script only actually runs `drizzle-kit migrate` when
+  `FORCE_DB_MIGRATIONS=1` is set. `.github/workflows/deploy.yml` sets it
+  explicitly as a step *before* `sst deploy`, where `DATABASE_URL` is a real,
+  reachable database. Plain local `pnpm build` and CI's build job (fake
+  placeholder `DATABASE_URL`) skip it by default.
 - To test the full deploy path locally against your dev database:
   `FORCE_DB_MIGRATIONS=1 pnpm build`.
-- To skip migrations on a Vercel build (e.g. you already applied them by
-  hand): set `SKIP_DB_MIGRATIONS=1` as a Vercel env var for that deployment.
+- To skip migrations on a deploy (e.g. you already applied them by hand): set
+  `SKIP_DB_MIGRATIONS=1` in the deploy workflow's environment for that run.
 
-### Which database a build migrates
+### Which database a deploy migrates
 
-Whichever one `DATABASE_URL` resolves to for **that** deployment's environment.
-The script has no notion of "production" — it migrates what it is pointed at.
+Whichever one `DATABASE_URL` resolves to for that run. The script has no
+notion of "production" — it migrates what it is pointed at.
 
-This matters because preview builds run it too. If Preview and Production share
-a single `DATABASE_URL` value in Vercel, every preview deployment applies its
-branch's migrations to the **production** database, before the PR merges and
-including destructive ones. Give Preview its own database, or set
-`SKIP_DB_MIGRATIONS=1` on the Preview environment — see
+This matters if you ever deploy a non-production SST stage through the same
+migration step. Give it its **own** `DATABASE_URL`, or a deploy against a
+shared value applies that branch's migrations — destructive ones included —
+to whatever database `DATABASE_URL` actually points at. See
 [deployment.md](../setup/deployment.md).
 
-`neon-preview.yml` does not cover this. It migrates a per-PR Neon branch inside
-CI, which is how a broken migration gets caught before merge; it does not change
-what a Vercel preview deployment connects to. The two are complementary.
+`neon-preview.yml` migrates a per-PR Neon branch inside CI, which is how a
+broken migration gets caught before merge. It's a separate, complementary
+mechanism from the deploy workflow's migration step above — it doesn't run
+`sst deploy` or affect any deployed app.
 
 ## Common scenarios
 
@@ -123,7 +123,7 @@ holds no real data.
 **CI's `db-migration-check` fails.** You changed `src/db/schema.ts` without a
 migration. Run `pnpm db:generate --name <name>`, commit the result.
 
-**A Vercel build fails on `db:deploy`.** The build log shows the
+**The deploy workflow fails on `db:deploy`.** The Action log shows the
 `drizzle-kit migrate` error directly — treat it like any other broken
 migration: fix forward with a new migration, don't hand-edit the failed one in
 place. `SKIP_DB_MIGRATIONS=1` unblocks a deploy in an emergency but leaves the

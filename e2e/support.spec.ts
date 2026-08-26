@@ -8,8 +8,8 @@ import { signUp } from "./helpers";
  *
  * The server rate-limits by (hashed) client IP and by email, counted against
  * stored submissions — so repeated local runs would trip it. Each run therefore
- * spoofs a unique `x-forwarded-for` (the dev server trusts the header; Vercel
- * overwrites it in production) and uses run-unique emails.
+ * spoofs a unique `x-forwarded-for` (the dev server trusts the header;
+ * CloudFront overwrites it in production) and uses run-unique emails.
  */
 
 const runId = randomUUID();

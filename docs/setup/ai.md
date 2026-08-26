@@ -41,15 +41,15 @@ Subscription models only work under `next dev`. `pnpm build` + `next start`
 
 ## Deployment (API keys)
 
-```bash
-vercel env add AI_MODEL production          # e.g. anthropic/claude-opus-4-8
-vercel env add ANTHROPIC_API_KEY production # or OPENAI_API_KEY for openai/* ids
-```
+Set `AI_MODEL` (e.g. `anthropic/claude-opus-4-8`) as a plain `environment`
+entry in `sst.config.ts`, and `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY` for
+`openai/*` ids) as an `sst.Secret` — the same pattern as
+`BetterAuthSecret` — see [deployment.md](./deployment.md).
 
 Guard rails you'll hit if something is off:
 
-- A `claude-code/*` or `codex/*` id in any Vercel env → build/boot fails
-  ("forbidden in deployed environments").
+- A `claude-code/*` or `codex/*` id in any deployed environment → build/boot
+  fails ("forbidden in deployed environments").
 - An `anthropic/*` / `openai/*` id in production without its key → boot fails
   naming the missing key.
 
@@ -87,5 +87,5 @@ and drop `<AiDisclosureNotice>` into its UI — see `docs/legal.md`.
   schemas simple, or verify against an API tier before shipping.
 - **E2E/CI:** leave `AI_MODEL` unset there. The layer stays inert; specs never
   burn subscription usage or tokens.
-- **Never** put a subscription login (or its OAuth token) in Vercel, CI,
-  containers, or the repo. See the hard rules in ADR-0022.
+- **Never** put a subscription login (or its OAuth token) in a deployed
+  environment, CI, containers, or the repo. See the hard rules in ADR-0022.

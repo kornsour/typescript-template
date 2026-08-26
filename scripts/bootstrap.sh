@@ -22,7 +22,7 @@ say "1/6 · Checking tooling"
 for c in node pnpm psql createdb openssl; do
 	if have "$c"; then echo "  ✓ $c"; else echo "  ✗ $c (required)"; MISSING=1; fi
 done
-for c in vercel neonctl gcloud gh stripe; do
+for c in sst neonctl gcloud gh stripe; do
 	have "$c" && echo "  ✓ $c (optional)" || echo "  – $c (optional, needed for provisioning)"
 done
 if [ "${MISSING:-0}" = "1" ]; then

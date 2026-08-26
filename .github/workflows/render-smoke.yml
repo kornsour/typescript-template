@@ -47,8 +47,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build (production)
-        # Not `pnpm build` — that prepends db:deploy (a no-op off Vercel). Build
-        # directly so we exercise exactly the production server the smoke boots.
+        # Not `pnpm build` — that prepends db:deploy (a no-op here; it only runs
+        # with FORCE_DB_MIGRATIONS=1). Build directly so we exercise exactly the
+        # production server the smoke boots.
         run: pnpm exec next build
 
       - name: Render smoke

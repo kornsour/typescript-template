@@ -21,8 +21,11 @@ neonctl auth
 neonctl projects create --name <app>
 neonctl connection-string --project-id <id> --database-name neondb
 ```
-Set that pooled string as `DATABASE_URL` in Vercel (per environment). A separate
-Neon **branch** per environment (e.g. `preview`) keeps data isolated.
+Set that pooled string with `npx sst secret set DatabaseUrl "<connection-string>"
+--stage production` (read by `sst.config.ts`) and as the `DATABASE_URL` repo
+secret used by `.github/workflows/deploy.yml`'s migration step. A separate
+Neon **branch** per environment keeps data isolated — see
+[deployment.md](./deployment.md).
 
 ## Schema & migrations
 
@@ -43,15 +46,16 @@ Schema changes are enforced and deployed automatically — see
 [`database-migrations.md`](../maintenance/database-migrations.md) and
 [ADR-0016](../adr/0016-database-migration-automation.md):
 
-- `pnpm build` applies pending migrations before `next build` on every Vercel
-  deploy (`pnpm db:deploy`, gated on the `VERCEL` env var) — against whatever
-  database that deployment's `DATABASE_URL` points at. **Preview needs its own
-  `DATABASE_URL`**, or preview deploys will migrate production; see
+- `.github/workflows/deploy.yml` applies pending migrations
+  (`pnpm db:deploy` with `FORCE_DB_MIGRATIONS=1`) against the `DATABASE_URL`
+  repo secret **before** `sst deploy` on every push to `main` — schema first,
+  then the code that needs it. `pnpm build` itself does not migrate anything
+  (`db:deploy` is a no-op without `FORCE_DB_MIGRATIONS=1`), so plain local
+  builds and CI's build never touch a real database. See
   [deployment.md](./deployment.md).
 - CI fails a PR that changes `schema.ts` without a matching `drizzle/`
   migration file.
 - Setting the `NEON_PROJECT_ID` repo variable (+ `NEON_API_KEY` secret) turns
   on a per-PR Neon preview branch that gets migrated and schema-diffed
-  automatically (`.github/workflows/neon-preview.yml`). This runs in CI to catch
-  broken migrations before merge; it does not affect which database a Vercel
-  preview deployment uses.
+  automatically (`.github/workflows/neon-preview.yml`), catching broken
+  migrations before merge.

@@ -2,7 +2,8 @@
 
 The template's pluggable email sender (`src/lib/email/index.ts`) sends via AWS
 SES whenever `AWS_REGION` is set (credentials come from the SDK's default
-provider chain — IAM role on Vercel/CI, `aws configure` profile locally).
+provider chain — the Lambda execution role in deployed builds, `aws configure`
+profile locally).
 This doc is the SES-side checklist: what to provision, and how to harden it so
 a public app can't damage your sending reputation or your bill. Written to be
 followed by an agent with the `aws` CLI, with console fallbacks where noted.
@@ -26,8 +27,9 @@ The response includes three **Easy DKIM** CNAME tokens. Publish each as DNS:
 <token>._domainkey.$DOMAIN  CNAME  <token>.dkim.amazonses.com
 ```
 
-(With Cloudflare DNS, the same `cf` CLI pattern `scripts/add-app-domain.sh`
-uses can create these.) Check until `VerifiedForSendingStatus` is true:
+(With Cloudflare DNS, the `cf` CLI can create these — see
+[cli-reference.md](../cli-reference.md#cf--cloudflare-dns-records-sst-doesnt-manage).)
+Check until `VerifiedForSendingStatus` is true:
 
 ```bash
 aws sesv2 get-email-identity --email-identity "$DOMAIN" --region "$AWS_REGION" \

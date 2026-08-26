@@ -26,9 +26,10 @@ export const RATE_LIMITS = {
 } as const;
 
 /**
- * Client IP as reported by the platform. On Vercel `x-forwarded-for` is set by
- * the proxy and its first entry is trustworthy; locally it's absent (or, in
- * E2E, injected by Playwright to isolate test runs from each other).
+ * Client IP as reported by the platform. Behind CloudFront (the AWS/SST
+ * target — ADR-0023), `x-forwarded-for` is set by the proxy and its first
+ * entry is trustworthy; locally it's absent (or, in E2E, injected by
+ * Playwright to isolate test runs from each other).
  */
 export async function getClientIp(): Promise<string> {
 	const h = await headers();

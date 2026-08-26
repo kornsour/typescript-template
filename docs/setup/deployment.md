@@ -1,21 +1,15 @@
-# Deployment (Vercel + Neon)
+# Deployment (AWS via SST v4 + OpenNext)
 
-> **This page describes the Vercel path, which is being retired.** New apps
-> deploy to AWS with SST v4 + OpenNext — see
-> [ADR-0023](../adr/0023-aws-sst-deploy.md), `sst.config.ts` and
-> `.github/workflows/deploy.yml`. In short: `pnpm sst:check` validates the
-> config, secrets are `sst.Secret` rather than Vercel env vars, the hostname is
-> set in `sst.config.ts` (subdomain by default, apex via `APP_DOMAIN`) instead of
-> by `scripts/add-app-domain.sh`, and migrations run as an explicit deploy step
-> rather than from the build. This page is kept while apps remain on Vercel and
-> will be rewritten as they migrate.
+Apps built from this template deploy to AWS — Lambda behind CloudFront
+(`sst.aws.Nextjs`), static assets on S3, ISR cache in DynamoDB. See
+[ADR-0023](../adr/0023-aws-sst-deploy.md) for why, `sst.config.ts` for the
+config, and `.github/workflows/deploy.yml` for the deploy step itself.
 
 ## First deploy
 
 ```bash
 gh repo create <owner>/<app> --private --source . --push   # if not on GitHub yet
 scripts/setup-branch-protection.sh <owner>/<app>           # PR + green-CI merge gate
-vercel link                                                 # link dir → Vercel project
 ```
 
 A repo generated from the template does **not** inherit the template's branch
@@ -24,107 +18,90 @@ ruleset (rulesets are repo settings, not files), so run
 (`.github/rulesets/default-branch.json`): a PR is required and can't merge until
 CI is green and the branch is up to date.
 
-## Environment variables
+### Wire up the deploy workflow
 
-Set every server + `NEXT_PUBLIC_*` var from `.env.example` in Vercel **for both
-`production` and `preview`**. Setting only production is a common trap: the
-first preview / deploy-preview build then fails at env validation because the
-required vars are missing for preview. Minimum to boot: `DATABASE_URL` (Neon) and
-a **fresh** `BETTER_AUTH_SECRET` (never reuse the local one).
+`.github/workflows/deploy.yml` no-ops until these exist:
+
+- **`AWS_DEPLOY_ROLE_ARN`** repo variable — an IAM role that trusts GitHub's
+  OIDC provider (Settings → Secrets and variables → Actions → Variables). No
+  static AWS keys are ever stored in the repo.
+- **`DATABASE_URL`** repo secret — used only by the pre-deploy migration step.
+- **`CLOUDFLARE_API_TOKEN`** repo secret, scoped to `Zone:DNS:Edit`, and
+  **`CLOUDFLARE_ZONE_ID`** repo secret — so `sst deploy` can create the
+  Cloudflare DNS record for the app's hostname.
+
+### App secrets (`sst.Secret`)
+
+`sst.config.ts` reads `DatabaseUrl` and `BetterAuthSecret` from SST's encrypted
+parameter store, set once per stage:
 
 ```bash
-vercel env add BETTER_AUTH_SECRET production preview  # openssl rand -base64 32
-# …GOOGLE_*, APPLE_*, STRIPE_*, AWS_REGION, EMAIL_FROM, NEXT_PUBLIC_APP_URL
-vercel env pull .env.local                            # sync down for local parity
+npx sst secret set DatabaseUrl "<Neon connection string>" --stage production
+npx sst secret set BetterAuthSecret "$(openssl rand -base64 32)" --stage production
 ```
+
+Never reuse the local `BETTER_AUTH_SECRET` — generate a fresh one per stage.
 
 ### `DATABASE_URL` needs a different value per environment
 
-Give Preview its **own** database — a long-lived Neon `preview` branch — and add
-the two environments separately:
+Give any non-production stage its **own** database — a long-lived Neon branch —
+rather than pointing it at the production connection string. The deploy
+workflow migrates whatever `DATABASE_URL` resolves to for that run (see
+[database-migrations.md](../maintenance/database-migrations.md)); sharing one
+value between stages means a non-production deploy could migrate — or read and
+write — production data.
 
-```bash
-vercel env add DATABASE_URL production   # prod branch connection string
-vercel env add DATABASE_URL preview      # preview branch connection string
-```
-
-Do not add one shared value for both. Every Vercel build runs `pnpm db:deploy`
-(see [database-migrations.md](../maintenance/database-migrations.md)), so if
-Preview resolves to the production database, **each preview deployment applies
-its branch's migrations to production** — before the PR is reviewed or merged,
-destructive ones included. Preview deployments would also read and write live
-production data.
-
-If Preview must share the production `DATABASE_URL` for now, guard it
-explicitly:
-
-```bash
-vercel env add SKIP_DB_MIGRATIONS preview   # value: 1
-```
-
-That stops preview builds from mutating the production schema. It does **not**
-stop them reading and writing production data — a separate database is the only
-fix for that.
-
-Setting `NEON_PROJECT_ID`/`NEON_API_KEY` is worth doing as well, but it is not a
-substitute for either of the above: it gives each PR a migrated Neon branch in
-**CI**, which is where a broken migration gets caught. It has no effect on what a
-Vercel preview deployment connects to (see [database.md](./database.md)).
-
-Or use the session's Vercel skills: `vercel:env` (sync/diff), `vercel:deploy`
-(ship), `vercel:bootstrap` (link + Marketplace integrations, incl. Neon).
-
-> A local `.env` is never uploaded (`.vercelignore`) and never sourced on Vercel,
-> so it can't override the `DATABASE_URL` Vercel injects — the build reads only
-> the platform's env vars.
+Setting `NEON_PROJECT_ID`/`NEON_API_KEY` (`.github/workflows/neon-preview.yml`)
+is worth doing as well: it gives each PR a migrated Neon branch in **CI**,
+which is where a broken migration gets caught before merge. It's a separate
+mechanism from the deploy workflow's own migration step — see
+[database.md](./database.md).
 
 ## Deploy
 
+Pushing to `main` runs `.github/workflows/deploy.yml`: migrations first
+(`pnpm db:deploy` with `FORCE_DB_MIGRATIONS=1`), then `pnpm sst deploy --stage
+production`. To deploy by hand (e.g. from a local machine with AWS
+credentials already configured):
+
 ```bash
-vercel deploy            # preview
-vercel deploy --prod     # production
+pnpm sst:check                        # validates sst.config.ts (runs `sst install`)
+FORCE_DB_MIGRATIONS=1 pnpm db:deploy   # apply pending migrations first
+pnpm sst deploy --stage production
 ```
 
-## Custom domain (Vercel + Cloudflare DNS)
+## Custom domain (SST + Cloudflare DNS)
 
 New apps default to a **subdomain of one shared zone** so the first deploy never
 blocks on buying a domain ([ADR-0019](../adr/0019-subdomain-default-domains.md)).
-`scripts/add-app-domain.sh` attaches the domain to the linked project and creates
-the DNS record in one step:
+`domainConfig()` in `sst.config.ts` decides the hostname, and `sst deploy`
+provisions the us-east-1 ACM certificate and the Cloudflare DNS record itself —
+no separate script or manual DNS step:
 
-```bash
-APPS_DOMAIN=<your-shared-zone> scripts/add-app-domain.sh <app>   # → <app>.<your-shared-zone>
-scripts/add-app-domain.sh --apex <domain>                        # promote: apex + www
-```
+- Default: `<app>.$APPS_DOMAIN` (falls back to the fleet's shared zone,
+  `uresu.app`, if `APPS_DOMAIN` is unset).
+- Promotion to a dedicated apex: set the `APP_DOMAIN` env var before deploying.
+  `www.<domain>` redirects to the apex.
 
-The apex path uses a CNAME at the apex (Cloudflare flattens it), so no anycast IP
-is hard-coded. Records are created **DNS only** (`proxied: false`) so Vercel can
-issue the cert — a proxied (orange-cloud) record in front of Vercel's own
-edge/TLS can block certificate issuance. Enable Cloudflare's proxy afterward only
-with SSL/TLS mode Full (strict). To do it by hand instead, see
-[cli-reference.md](../cli-reference.md#cf--cloudflare-dns-for-a-custom-domain).
+Non-production stages skip all of this and get SST's generated CloudFront URL,
+so they never need a certificate or a DNS record.
 
-After the domain is live, set `NEXT_PUBLIC_APP_URL` to the new HTTPS URL (both
-environments) and register the production OAuth redirect URIs.
+After the domain is live, set `NEXT_PUBLIC_APP_URL` to the new HTTPS URL and
+register the production OAuth redirect URIs.
 
 ## Post-deploy checklist
 
-1. `NEXT_PUBLIC_APP_URL` = the real HTTPS domain (OAuth redirects + email links).
+1. `NEXT_PUBLIC_APP_URL` = the real HTTPS domain (OAuth redirects + email links)
+   — set via `environment` in `sst.config.ts` (`appUrl()`).
 2. Register production OAuth redirect URIs (`<APP_URL>/api/auth/callback/<provider>`).
 3. Add the Stripe **live** webhook endpoint + signing secret.
 4. Confirm `AWS_REGION` + `EMAIL_FROM` are set and `EMAIL_FROM` is a verified SES
    identity/domain in that region (email verification is required in prod).
-   Store ordinary configuration such as `AWS_REGION` and `EMAIL_FROM` in the
-   deployment environment's configuration variables. If a Vercel-hosted runtime
-   must call SES directly, its narrowly scoped AWS credential is a runtime
-   secret: store only the credential value in Vercel's encrypted environment
-   secrets, never in source, `.env.example`, GitHub Actions, or this guide.
-   Prefer GitHub OIDC for deployment automation. Full SES provisioning +
-   hardening checklist (DKIM/SPF/DMARC, sandbox exit, least-privilege IAM,
-   bounce handling): [`aws-ses.md`](./aws-ses.md).
-5. Schema migrations apply automatically — `pnpm build` runs `pnpm db:deploy`
-   before `next build` on every Vercel deploy (gated on the `VERCEL` env var,
-   so this doesn't need a manual step). See
+   The app's Lambda execution role is the runtime credential — no static AWS
+   key belongs in source, `.env.example`, or GitHub Actions. Full SES
+   provisioning + hardening checklist (DKIM/SPF/DMARC, sandbox exit,
+   least-privilege IAM, bounce handling): [`aws-ses.md`](./aws-ses.md).
+5. Schema migrations apply automatically as an explicit pre-deploy step — see
    [`../maintenance/database-migrations.md`](../maintenance/database-migrations.md).
 6. Work through [`../security.md`](../security.md) and run `/security-review`.
 
@@ -138,3 +115,6 @@ locally only ([ADR-0008](../adr/0008-e2e-local-only.md)).
 `.github/workflows/neon-preview.yml` gives each PR its own migrated Neon branch
 once `NEON_PROJECT_ID` is set — see
 [`../maintenance/database-migrations.md`](../maintenance/database-migrations.md).
+
+`.github/workflows/render-smoke.yml` builds the production bundle and smoke-tests
+it on every PR — see [ADR-0021](../adr/0021-production-render-smoke.md).

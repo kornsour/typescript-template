@@ -44,8 +44,9 @@ pnpm db:push      # push schema (dev)
 pnpm db:generate && pnpm db:migrate   # migrations (prod path)
 ```
 
-Migrations auto-apply on every Vercel build, and CI blocks a PR that changes
-the schema without one — see [`docs/maintenance/database-migrations.md`](./docs/maintenance/database-migrations.md).
+Migrations auto-apply as a pre-deploy step in `.github/workflows/deploy.yml`,
+and CI blocks a PR that changes the schema without one — see
+[`docs/maintenance/database-migrations.md`](./docs/maintenance/database-migrations.md).
 
 ## Documentation
 

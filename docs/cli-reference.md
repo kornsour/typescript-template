@@ -4,20 +4,22 @@ The command-line tools used to operate an app built from this template, and the
 commands you actually reach for. Agents: prefer these CLIs over dashboards where
 a CLI path exists; the `provision-app` skill orchestrates them end-to-end.
 
-Install (macOS): `brew install vercel-cli neonctl gh stripe/stripe-cli/stripe
-awscli`; `gcloud` via the Google Cloud SDK installer; `npm install -g cf` for
-Cloudflare. Check with `--version`, or run `pnpm preflight` to check all of
-them (plus Node/pnpm/Postgres/`.env`) at once.
+Install (macOS): `brew install neonctl gh stripe/stripe-cli/stripe awscli`;
+`gcloud` via the Google Cloud SDK installer; `npm install -g cf` for
+Cloudflare; `sst` ships as a dev dependency, invoke via `pnpm sst` / `npx sst`.
+Check with `--version`, or run `pnpm preflight` to check all of them (plus
+Node/pnpm/Postgres/`.env`) at once.
 
-## vercel — hosting, env, deploys
+## sst — deploy (AWS via SST v4 + OpenNext)
 | Task | Command |
 |------|---------|
-| Link repo to a project | `vercel link` |
-| List / add / pull env | `vercel env ls` · `vercel env add <NAME> <env>` · `vercel env pull .env.local` |
-| Deploy | `vercel deploy` (preview) · `vercel deploy --prod` |
-| Logs | `vercel logs <deployment-url>` |
+| Validate `sst.config.ts` | `pnpm sst:check` (runs `sst install`) |
+| Deploy a stage | `pnpm sst deploy --stage production` |
+| Set a secret | `npx sst secret set BetterAuthSecret "$(openssl rand -base64 32)" --stage production` |
 
-Also available as session skills: `vercel:env`, `vercel:deploy`, `vercel:bootstrap`.
+`.github/workflows/deploy.yml` runs the production deploy on every push to
+`main`. See [ADR-0023](./adr/0023-aws-sst-deploy.md) and
+[`docs/setup/deployment.md`](./setup/deployment.md).
 
 ## neonctl — Postgres (preview/prod)
 | Task | Command |
@@ -50,21 +52,23 @@ Also available as session skills: `vercel:env`, `vercel:deploy`, `vercel:bootstr
 | Local webhooks | `stripe listen --forward-to localhost:3000/api/webhooks/stripe` |
 | Fire a test event | `stripe trigger checkout.session.completed` |
 
-## cf — Cloudflare (DNS for a custom domain)
+## cf — Cloudflare (DNS records SST doesn't manage)
+
+The app's own hostname doesn't need this CLI: `sst.config.ts` provisions the
+Cloudflare record (and the us-east-1 ACM cert) itself via
+`sst.cloudflare.dns()` when `sst deploy` runs, given `CLOUDFLARE_API_TOKEN`
+(scoped to `Zone:DNS:Edit`) and `CLOUDFLARE_ZONE_ID` — see
+[ADR-0023](./adr/0023-aws-sst-deploy.md). Use `cf` directly for everything
+SST doesn't touch: SES DKIM/SPF/DMARC records
+([`docs/setup/aws-ses.md`](./setup/aws-ses.md)), domain-verification TXT
+records, etc.
+
 | Task | Command |
 |------|---------|
 | Login | `cf auth login` |
 | Find your zone | `cf zones list --name <domain>` (or just pass `-z <domain>` below — it accepts a domain name, not only a zone ID) |
 | List existing records | `cf dns records list -z <domain>` |
-| Point a subdomain at Vercel | `cf dns records create -z <domain> --body '{"type":"CNAME","name":"app","content":"cname.vercel-dns.com","ttl":1,"proxied":false}'` |
-| Point the apex at Vercel | `cf dns records create -z <domain> --body '{"type":"A","name":"@","content":"76.76.21.21","ttl":1,"proxied":false}'` |
-
-Get the exact target (`vercel domains add <domain> <project>` prints it) before
-creating the record — Vercel occasionally changes the anycast IP. Keep the
-record **DNS only** (`proxied: false`, grey-cloud) so Vercel can issue/renew the
-TLS cert directly; flip on the Cloudflare proxy only after `vercel domains
-inspect <domain>` shows a valid configuration, and set Cloudflare's SSL/TLS mode
-to Full (strict) if you do.
+| Create a record | `cf dns records create -z <domain> --body '{"type":"TXT","name":"@","content":"...","ttl":1}'` |
 
 ## aws — Route53 (DNS for domains hosted there)
 | Task | Command |
