@@ -20,3 +20,11 @@ jobs:
     uses: kornsour/gh-automation/.github/workflows/ci.yml@main
     with:
       migration-check: true
+
+  adr-index:
+    name: ADR index check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Unique ADR numbers, complete index
+        run: scripts/check-adr-index.sh
