@@ -1,4 +1,4 @@
-# ADR-0022: Run Playwright E2E locally, never in GitHub Actions
+# ADR-0024: Run Playwright E2E locally, never in GitHub Actions
 
 - Status: Accepted
 - Date: 2026-08-17

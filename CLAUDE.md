@@ -218,7 +218,7 @@ creating billable/public resources.
   the support form (`support.spec`). Shared sign-up helper in `e2e/helpers.ts`.
 - **E2E is local-only.** GitHub Actions never runs Playwright, including for
   Dependabot and manual dispatches. Run `pnpm e2e` before merging changes to a
-  covered flow or releasing; see [ADR-0022](./docs/adr/0022-e2e-local-only.md).
+  covered flow or releasing; see [ADR-0024](./docs/adr/0024-e2e-local-only.md).
 - Render smoke: `scripts/render-smoke.mts` boots a **production** build
   (`next start`) and asserts key routes server-render real content under the real
   strict CSP — catching prod-only blank-screen bugs that dev (permissive CSP) and

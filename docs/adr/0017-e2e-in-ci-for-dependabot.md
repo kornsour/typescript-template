@@ -1,6 +1,6 @@
 # ADR-0017: Run E2E in CI for Dependabot PRs (auto-merge safety net)
 
-- Status: Superseded by [ADR-0022](./0022-e2e-local-only.md)
+- Status: Superseded by [ADR-0024](./0024-e2e-local-only.md)
 - Date: 2026-07-07
 - Supersedes: [ADR-0008](./0008-e2e-local-only.md)
 
