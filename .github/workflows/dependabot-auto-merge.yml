@@ -10,7 +10,10 @@ permissions:
 jobs:
   automerge:
     # No `secrets: inherit` — it would hand the called workflow every secret in
-    # this repo, not just the ones it needs. The reusable workflow declares no
-    # `secrets:` in its `workflow_call` and uses only `secrets.GITHUB_TOKEN`,
-    # which GitHub provides to called workflows automatically.
-    uses: kornsour/gh-automation/.github/workflows/dependabot-auto-merge.yml@656f46da71566a02a641be3dcc26e07339b6e689 # dependabot-auto-merge.yml pinned 2026-09-06
+    # this repo. AUTOMERGE_TOKEN (a Dependabot secret) is passed by name so the
+    # merge is made by a real identity and push workflows run on main.
+    uses: kornsour/gh-automation/.github/workflows/dependabot-auto-merge.yml@b3c9725939d515a545219990f226bcfb1b754af6 # v1.1.0
+    with:
+      require-token: true
+    secrets:
+      AUTOMERGE_TOKEN: ${{ secrets.AUTOMERGE_TOKEN }}
