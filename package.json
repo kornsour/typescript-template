@@ -64,7 +64,7 @@
     "google-auth-library": "^11.3.2",
     "sst": "^4.17.2",
     "tailwindcss": "^4",
-    "typescript": "^6",
+    "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   },
   "pnpm": {

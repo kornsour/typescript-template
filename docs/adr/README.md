@@ -56,3 +56,4 @@ Each record uses a short [MADR](https://adr.github.io/madr/)-style template:
 | [0022](./0022-ai-model-access-tiers.md) | AI model access — subscription CLIs for local dev, API keys for deployment | Accepted |
 | [0023](./0023-aws-sst-deploy.md) | Deploy to AWS with SST v4 + OpenNext instead of Vercel | Accepted |
 | [0024](./0024-e2e-local-only.md) | Run Playwright E2E locally, never in GitHub Actions | Accepted |
+| [0025](./0025-typescript-7.md) | TypeScript 7 (native compiler) and its tsconfig conventions | Accepted |
