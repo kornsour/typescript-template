@@ -48,6 +48,19 @@ Migrations auto-apply as a pre-deploy step in `.github/workflows/deploy.yml`,
 and CI blocks a PR that changes the schema without one — see
 [`docs/maintenance/database-migrations.md`](./docs/maintenance/database-migrations.md).
 
+## TypeScript
+
+The template is on **TypeScript 7** (the native compiler). Keep these tsconfig
+conventions in derived apps — the reasoning is in
+[ADR-0025](./docs/adr/0025-typescript-7.md):
+
+- no `baseUrl`; aliases are tsconfig-relative (`"@/*": ["./src/*"]`);
+- ambient type packages are listed in `compilerOptions.types` (`["node"]` here) —
+  TS 7 does not auto-include `@types/*`;
+- an emitting tsconfig (e.g. a library build) needs an explicit `rootDir`;
+- TS 7 has no JS compiler API — a tool that needs it gets the
+  `@typescript/typescript6` compatibility package, not a `typescript@6` downgrade.
+
 ## Documentation
 
 Start with [`docs/setup/getting-started.md`](./docs/setup/getting-started.md).
