@@ -1,0 +1,6 @@
+# Reviewed false positives, one fingerprint per line (commit:file:rule:line).
+# An entry silences exactly that line in that commit. Never add a real credential
+# here: revoke it instead.
+
+# Made-up better-auth secret in a unit test (#125). No longer in the code.
+4be45408256dc5c26875a744828af534a7c9a58b:src/lib/auth/mobile.test.ts:generic-api-key:38
