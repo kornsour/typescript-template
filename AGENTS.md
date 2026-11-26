@@ -8,6 +8,10 @@ Quick pointers for any coding agent (Claude Code, Codex, Cursor, …):
 
 - **Setup:** `pnpm bootstrap` (needs local Postgres). See `docs/setup/getting-started.md`.
 - **Before committing:** `pnpm check:fix && pnpm test`. A commit hook enforces this.
+  After touching `mobile/` or `shared/`, also run `pnpm mobile:check`.
+- **Web + mobile:** web at the repo root, optional Expo app in `mobile/`, shared
+  code in `shared/` (`@app/shared`). Mobile calls API routes, never server
+  actions; check the session in every route. See `docs/setup/mobile.md`.
 - **Env:** add new vars to both `src/env.ts` and `.env.example`; import `env` from
   `@/env`, never `process.env`.
 - **Auth:** gate protected code with `requireUser()` (`src/lib/auth/session.ts`),

@@ -16,7 +16,12 @@ A repo generated from the template does **not** inherit the template's branch
 ruleset (rulesets are repo settings, not files), so run
 `setup-branch-protection.sh` once to apply the codified one
 (`.github/rulesets/default-branch.json`): a PR is required and can't merge until
-CI is green and the branch is up to date.
+CI is green and the branch is up to date. Re-run it whenever that file changes
+(for example when a required check is added, or after `pnpm mobile:remove`).
+
+If you keep the [mobile app](./mobile.md), release builds point
+`EXPO_PUBLIC_API_URL` at this deployment. `sst deploy` does not build or publish
+the app.
 
 ### Wire up the deploy workflow
 

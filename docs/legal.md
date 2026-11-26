@@ -19,7 +19,7 @@ live policy text, not placeholders.
 
 Plus:
 
-- `src/content/legal/config.ts` — company info, governing law, and `LEGAL_VERSION` in one place.
+- `src/content/legal/config.ts` — company info and governing law in one place. `LEGAL_VERSION` is defined in `shared/src/legal.ts` (re-exported by `config.ts`).
 - Sign-up requires an explicit ToS/Privacy checkbox, enforced server-side in `src/lib/auth.ts` (not just client-side), and the accepted version + timestamp is stored on the `user` row.
 - `<AiDisclosureNotice>` (`src/components/ai-disclosure-notice.tsx`) — drop into any AI-facing feature's UI so the disclosure is at the point of use.
 - `NEXT_PUBLIC_AI_FEATURES_ENABLED` — gates the AI Disclosure footer link; flip on once you ship an AI feature.
@@ -32,7 +32,7 @@ Plus:
 3. Decide whether you need a **GDPR/UK GDPR Article 27 representative** — relevant if you have a meaningful EU/UK user base, since a public deployment doesn't geofence itself.
 4. Decide whether you want a mandatory-arbitration / class-action-waiver clause in the ToS. Deliberately left out as a business decision, not a default.
 5. If you serve B2B customers who ask for a **Data Processing Addendum (DPA)** (common for anyone processing EU personal data as a processor), you'll need one — this template doesn't include a DPA template; that's a negotiated contract, not boilerplate.
-6. When you materially change a legal page, bump `LEGAL_VERSION` in `src/content/legal/config.ts`. New sign-ups are gated on the current version automatically; **existing users are not automatically re-prompted** — add that check to `requireUser()`/`getSession()` call sites if you need to force re-acceptance.
+6. When you materially change a legal page, bump `LEGAL_VERSION` in `shared/src/legal.ts`. With a mobile app, the version is compiled into each build, so sign-up fails in installed apps until they update. New sign-ups are gated on the current version automatically; **existing users are not automatically re-prompted** — add that check to `requireUser()`/`getSession()` call sites if you need to force re-acceptance.
 7. If you add analytics, ads, or any non-essential tracking cookie, upgrade `src/components/cookie-banner.tsx` from a notice into a real accept/reject consent control _before_ those trackers load, and list them in the Cookie Policy.
 
 ## The researched landscape (general awareness, not advice)

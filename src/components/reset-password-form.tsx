@@ -1,11 +1,11 @@
 "use client";
 
+import { MIN_PASSWORD_LENGTH, passwordError } from "@app/shared/password";
 import { Button, Input } from "@kornorg/design-system";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { MIN_PASSWORD_LENGTH, passwordError } from "@/lib/password";
 
 /**
  * Reset-password form. The token is read on the server (from the page's

@@ -21,6 +21,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+	// Workspace package shipped as TypeScript source.
+	transpilePackages: ["@app/shared"],
 	// The subscription-CLI adapters are local-dev-only (see ADR-0022) and are
 	// loaded lazily in src/lib/ai/provider.ts. Marking them external keeps them
 	// (and the Claude Agent SDK they pull in) out of the server bundle entirely.

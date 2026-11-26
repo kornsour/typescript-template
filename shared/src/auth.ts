@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, passwordError } from "@/lib/password";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, passwordError } from "./password";
 
 /**
  * Shared password + sign-up validation used in two places so the rules can't
@@ -7,7 +7,7 @@ import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, passwordError } from "@/lib/p
  * src/lib/auth.ts (defense in depth — the client can be bypassed).
  *
  * The single source of truth for *what makes a password acceptable* is
- * `passwordError()` in src/lib/password.ts (length + blocklist, plus an
+ * `passwordError()` in ./password.ts (length + blocklist, plus an
  * optional composition toggle). This schema just adapts it to Zod.
  */
 

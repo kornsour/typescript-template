@@ -1,13 +1,13 @@
 /**
  * Single source of truth for the legal pages under src/app/(legal)/. Bump
- * LEGAL_VERSION any time those pages materially change.
+ * LEGAL_VERSION (shared/src/legal.ts) any time those pages materially change.
  *
  * TEMPLATE PLACEHOLDERS — replace every value below with the real company
  * details when creating an app from this template (the provision-app and
  * rename-app skills prompt for this). Don't ship the defaults: they render
  * directly on the public Terms/Privacy pages.
  */
-export const LEGAL_VERSION = "1.0";
+export { LEGAL_VERSION } from "@app/shared/legal";
 
 export const legalConfig = {
 	companyName: "Your Company LLC",

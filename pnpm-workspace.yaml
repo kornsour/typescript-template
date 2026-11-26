@@ -1,3 +1,9 @@
+# The web app stays at the repo root; the mobile app and shared code sit beside
+# it. See docs/adr/0026-web-and-mobile-workspace.md.
+packages:
+  - "mobile"
+  - "shared"
+
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver

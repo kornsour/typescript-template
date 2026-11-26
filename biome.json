@@ -42,6 +42,15 @@
 		}
 	},
 	"files": {
-		"includes": ["src/**", "*.config.ts", "*.config.js"]
+		"includes": [
+			"src/**",
+			"shared/**",
+			"mobile/**",
+			"!**/node_modules",
+			"!mobile/.expo",
+			"!mobile/expo-env.d.ts",
+			"*.config.ts",
+			"*.config.js"
+		]
 	}
 }

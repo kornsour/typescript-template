@@ -41,12 +41,17 @@ Requires the **Apple Developer Program ($99/yr)**.
    APPLE_CLIENT_SECRET="<the generated JWT>"
    ```
 
+## Mobile app
+
+The Expo app signs in with email/password only; native Google/Apple sign-in is
+not built. See [mobile.md](./mobile.md).
+
 ## Password policy
 
 Length ≥ 12 + a common-password blocklist (NIST 800-63B), enforced on the form,
 in the shared Zod schema, and server-side in a better-auth `before` hook. To
 require composition (upper/lower/number/special), flip `REQUIRE_COMPOSITION` in
-`src/lib/password.ts` — the one knob.
+`shared/src/password.ts` — the one knob.
 
 ## Email verification & reset
 

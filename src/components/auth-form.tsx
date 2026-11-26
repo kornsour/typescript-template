@@ -1,5 +1,11 @@
 "use client";
 
+import {
+	MIN_PASSWORD_LENGTH,
+	passwordError,
+	passwordScore,
+	STRENGTH_LABELS,
+} from "@app/shared/password";
 import { Button, Checkbox, Input, Label } from "@kornorg/design-system";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -7,7 +13,6 @@ import { useState } from "react";
 import { LEGAL_VERSION } from "@/content/legal/config";
 import { env } from "@/env";
 import { signIn, signUp } from "@/lib/auth-client";
-import { MIN_PASSWORD_LENGTH, passwordError, passwordScore, STRENGTH_LABELS } from "@/lib/password";
 
 const AFTER_AUTH = "/dashboard";
 const BAR_COLORS = ["bg-red-500", "bg-red-500", "bg-amber-500", "bg-lime-500", "bg-green-600"];
