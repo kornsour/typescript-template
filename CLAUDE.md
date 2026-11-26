@@ -110,8 +110,12 @@ pnpm db:deploy        # applies pending migrations; runs automatically as an
 ## Code Style
 
 - Biome only; tabs; line width 100; double quotes; semicolons. Run `pnpm check:fix` before committing.
-- A commit is gated by a PreToolUse hook that runs `pnpm check && pnpm test`
-  (`.claude/settings.json` → `scripts/hooks/pre-commit-gate.sh`).
+- A commit is gated by a PreToolUse hook that runs `pnpm check && pnpm test` in
+  the checkout being committed, main or worktree (`.claude/settings.json` →
+  `scripts/hooks/pre-commit-gate.sh`; tests in
+  `src/__tests__/pre-commit-gate.test.ts`). It runs the copy of the script in the
+  session's project directory, and needs `pnpm` on PATH and dependencies installed
+  in the checkout being committed.
 
 ## Environment Variables
 
