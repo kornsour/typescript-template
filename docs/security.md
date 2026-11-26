@@ -9,8 +9,10 @@ run before shipping. Read alongside the ADRs it links.
 |------|---------|-------|
 | SQL injection | Drizzle parameterizes every query. **Never** build SQL by string concatenation; if you must use `sql`, use its tagged-template placeholders, never interpolate user input. | `src/db/` |
 | AuthN | better-auth: hashed passwords (scrypt), secure/httpOnly/sameSite session cookies, CSRF protection on auth routes. | `src/lib/auth.ts`, [ADR-0012](./adr/0012-auth-better-auth.md) |
-| Password quality | Length ≥ 12 + common-password blocklist (NIST 800-63B), enforced on the form **and** server-side (`before` hook) — client checks can be bypassed. | `src/lib/password.ts`, `src/lib/auth/password-schema.ts` |
+| Password quality | Length ≥ 12 + common-password blocklist (NIST 800-63B), enforced on the form **and** server-side (`before` hook) — client checks can be bypassed. | `shared/src/password.ts`, `shared/src/auth.ts` |
 | AuthZ | `requireUser()` in every protected page/action; the proxy cookie check is only an optimistic redirect, never the sole gate. | `src/lib/auth/session.ts`, `src/proxy.ts` |
+| API routes | App JSON routes check the session themselves (`withApiSession()`, `private, no-store`). better-auth's CSRF protection covers only `/api/auth/*`, so a state-changing app route must verify the request origin itself. | `src/lib/auth/api-session.ts` |
+| Mobile deep links | The auth server trusts the app's URL scheme as an origin; `exp://` (Expo Go, matches any Expo project) is trusted in development only. | `src/lib/auth/mobile.ts`, [setup](./setup/mobile.md) |
 | Brute force | better-auth rate limiter enabled (stricter on auth paths). | `src/lib/auth.ts` |
 | Transport / headers | HSTS, `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`. | `next.config.ts`, [ADR-0009](./adr/0009-security-headers.md) |
 | XSS | Nonce-based CSP (strict in prod). | `src/proxy.ts`, [ADR-0014](./adr/0014-content-security-policy.md) |
@@ -20,6 +22,7 @@ run before shipping. Read alongside the ADRs it links.
 | Secret leakage | `.gitignore` excludes `.env*` (only `.env.example` is committed). | `.gitignore` |
 | Support-form abuse | Layered: honeypot (always on) → optional Cloudflare Turnstile (env-gated, free) → DB-backed sliding-window rate limits per IP hash (5/h) and per email (3/h). IPs stored only as salted SHA-256 hashes; accepted submissions are persisted to `support_request` as the audit trail the limiter counts against. | `src/lib/support/anti-spam.ts`, `docs/setup/turnstile.md` |
 | Outbound email | SES hardening checklist: domain DKIM/SPF/DMARC, least-privilege `ses:SendEmail` IAM, suppression list + bounce/complaint metrics. | `docs/setup/aws-ses.md` |
+| Mobile deep links | The app's scheme (`<scheme>://`) is a trusted redirect target, including for emailed password-reset and verification links requested with a deep-link `redirectTo`/`callbackURL`. Any installed app can claim a custom scheme and would receive the token if the user opened such a link. The starter app never requests one; before adding deep linking, switch to universal/app links or restrict these parameters. | `src/lib/auth/mobile.ts` |
 
 ## Pre-deploy checklist
 

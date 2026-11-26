@@ -10,7 +10,74 @@ updates:
       - "kornsour"
     labels:
       - "dependencies"
+    # mobile:begin
+    # The Expo SDK decides these versions as a set; upgrade them with
+    # `expo install --fix` (docs/setup/mobile.md). `update-types` limits the
+    # ignore to version updates, so security updates can still open a PR.
+    ignore:
+      - dependency-name: "expo"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      - dependency-name: "expo-*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      - dependency-name: "@expo/*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      - dependency-name: "jest-expo"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      - dependency-name: "babel-preset-expo"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      - dependency-name: "react-native"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      - dependency-name: "react-native-*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      - dependency-name: "@react-native/*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+      - dependency-name: "@react-native-*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
+    # mobile:end
     groups:
+      # mobile:begin
+      # Also used by the web app, but pinned to other versions by the Expo SDK.
+      # Not ignored (web must keep getting updates); grouped on their own so a
+      # PR that moves mobile/ off the SDK versions fails the Mobile check
+      # without holding up everything else. Must stay above all-dependencies:
+      # a dependency joins the first group that matches it.
+      shared-with-expo:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "typescript"
+        update-types:
+          - "minor"
+          - "patch"
+      # mobile:end
       all-dependencies:
         patterns:
           - "*"

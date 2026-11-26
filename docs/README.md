@@ -8,6 +8,7 @@ Project documentation for this template and the apps built from it.
   provisioned: [getting started](./setup/getting-started.md),
   [database](./setup/database.md), [auth](./setup/auth-setup.md),
   [Stripe](./setup/stripe.md), [deployment](./setup/deployment.md),
+  [mobile app](./setup/mobile.md),
   [Workspace support group](./setup/workspace-support-group.md).
 - [`cli-reference.md`](./cli-reference.md) — the CLIs used to operate the app
   (sst, neonctl, gcloud, gh, stripe, cf, aws) and the commands agents actually need.

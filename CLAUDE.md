@@ -8,6 +8,12 @@ Apple, email/password), **Stripe subscription billing**, a **local-Postgres →
 Neon** dev/prod split, and hardened security defaults — so a new app starts with
 login, payments, and a database already wired.
 
+It also includes an optional **Expo mobile app** (`mobile/`) on the same backend,
+with shared code in `shared/` (`@app/shared`). The web app stays at the repo
+root. See [ADR-0026](./docs/adr/0026-web-and-mobile-workspace.md) and
+[docs/setup/mobile.md](./docs/setup/mobile.md); remove it with
+`pnpm mobile:remove`.
+
 ## Decisions & Docs
 
 Rationale for foundational choices lives in Architecture Decision Records under
@@ -38,11 +44,15 @@ not provision external or billable resources without explicit authority.
 - **Billing**: Stripe, env-flagged ([ADR-0013](./docs/adr/0013-stripe-billing.md))
 - **AI**: Vercel AI SDK, tiered model access — subscription CLIs locally, API keys deployed ([ADR-0022](./docs/adr/0022-ai-model-access-tiers.md))
 - **Email**: pluggable (console in dev, AWS SES when `AWS_REGION` is set)
-- **Env**: `@t3-oss/env-nextjs` + Zod · **Actions**: next-safe-action · **PM**: pnpm
+- **Env**: `@t3-oss/env-nextjs` + Zod · **Actions**: next-safe-action · **PM**: pnpm (workspace)
+- **Mobile** (optional): Expo SDK 58, expo-router, plain React Native `StyleSheet`, better-auth Expo client ([ADR-0026](./docs/adr/0026-web-and-mobile-workspace.md))
 
 ## Project Structure
 
 ```
+mobile/                   # Expo app (optional; `pnpm mobile:remove` deletes it)
+shared/src/               # @app/shared: api.ts (HTTP contract), app.ts (APP_SCHEME),
+                          # auth.ts (Zod sign-up/password), password.ts, legal.ts
 src/
 ├── app/
 │   ├── (auth)/           # sign-in, sign-up, forgot/reset-password
@@ -50,6 +60,7 @@ src/
 │   ├── (legal)/          # terms, privacy, acceptable-use, ai-disclosure, cookies
 │   └── api/
 │       ├── auth/[...all]/     # better-auth handler
+│       ├── me/                # example session-checked JSON route (used by mobile)
 │       └── webhooks/stripe/   # signature-verified Stripe webhook
 ├── components/           # auth-form, sign-out-button, billing-button,
 │                         # site-footer, cookie-banner, ai-disclosure-notice
@@ -60,14 +71,15 @@ src/
 │   │                     # model-id.ts, deployment-boundary.ts (ToS guard)
 │   ├── auth.ts           # better-auth server instance
 │   ├── auth-client.ts    # better-auth React client
-│   ├── auth/             # session.ts (getSession/requireUser), password-schema.ts
-│   ├── password.ts       # password policy (single source of truth)
+│   ├── auth/             # session.ts (getSession/requireUser), api-session.ts
+│   │                     # (withApiSession for JSON routes), mobile.ts (Expo seam)
 │   ├── email/            # pluggable sendEmail()
 │   ├── stripe/           # client, actions, customer, webhook mapping
 │   └── safe-action.ts    # actionClient + authActionClient
 ├── env.ts                # type-safe env
 └── proxy.ts              # Next 16 proxy (formerly middleware): auth redirect + CSP
-scripts/                  # bootstrap.sh, preflight.sh, rename-app.sh, db-local.sh, hooks/
+scripts/                  # bootstrap.sh, preflight.sh, rename-app.sh, db-local.sh,
+                          # dev-all.sh, remove-mobile.sh, hooks/
 ```
 
 ## Common Commands
@@ -76,6 +88,10 @@ scripts/                  # bootstrap.sh, preflight.sh, rename-app.sh, db-local.
 pnpm bootstrap        # bootstrap a fresh clone (env, secret, local DB, schema)
 pnpm preflight        # read-only check: required + optional tooling, .env, DB, browsers
 pnpm dev              # dev server (Turbopack)
+pnpm dev:mobile       # Expo dev server (the app needs the web server for its API)
+pnpm dev:all          # web + Expo dev servers
+pnpm mobile:check     # mobile type check, tests, `expo install --check`
+pnpm mobile:remove    # delete the mobile app (web-only project)
 pnpm build            # production build
 pnpm check[:fix]      # Biome lint+format
 pnpm test             # unit tests (Vitest)
@@ -101,6 +117,10 @@ pnpm db:deploy        # applies pending migrations; runs automatically as an
 
 - Defined + validated in `src/env.ts` (Zod). Add new vars to **both** `src/env.ts`
   and `.env.example`. Import `env` from `@/env`; never read `process.env` directly.
+- The mobile app reads `EXPO_PUBLIC_API_URL` (the web app's origin) from
+  `mobile/.env`, documented in `mobile/.env.example`: optional in development
+  (defaults to port 3000 on the Expo host), required in production builds.
+  `EXPO_PUBLIC_*` values are bundled into the app, so never put a secret there.
 - Only `DATABASE_URL` + `BETTER_AUTH_SECRET` are required; social/email/Stripe
   vars are optional and gate their features. `SKIP_ENV_VALIDATION=1` for CI builds.
 
@@ -125,9 +145,14 @@ pnpm db:deploy        # applies pending migrations; runs automatically as an
 - Server instance: `src/lib/auth.ts`. Read the session with `getSession()` /
   `requireUser()` from `src/lib/auth/session.ts` in **every** protected page and
   server action — the `src/proxy.ts` cookie check is only an optimistic redirect.
-- Password rules live in `src/lib/password.ts` (one source of truth), enforced on
-  the form, in the shared Zod schema, and server-side. Social providers turn on
-  when their env vars exist.
+- Password rules live in `shared/src/password.ts` (one source of truth), enforced
+  on the form, in the shared Zod schema (`shared/src/auth.ts`), and server-side.
+  Social providers turn on when their env vars exist.
+- Mobile uses email/password through the better-auth Expo client. The server side
+  is only `src/lib/auth/mobile.ts` (a local origin-header plugin + trusted
+  deep-link origins; keep the export names, `remove-mobile.sh` overwrites the
+  file). Don't add `@better-auth/expo` to the root package (ADR-0026). `exp://` is trusted in
+  development only — don't widen that.
 - Email verification: sent on sign-up, and re-sent automatically on an unverified
   sign-in attempt (`sendOnSignIn`, so a lost first email self-heals). Users can
   also request one explicitly at `/verify-email` (enter email; enumeration-safe)
@@ -177,6 +202,20 @@ pnpm db:deploy        # applies pending migrations; runs automatically as an
 - `next-safe-action`: `actionClient` for public, `authActionClient` (adds
   `ctx.user`) for authenticated. Define with `.schema(zod).action(async ({ parsedInput, ctx }) => …)`.
 
+## API routes and Mobile
+
+- The mobile app calls HTTP routes, **never server actions**. New feature order:
+  validation + response schema in `@app/shared` → server logic → route under
+  `src/app/api/` with a session check → web page + mobile screen
+  (`docs/setup/mobile.md`).
+- Wrap session-gated reads in `withApiSession()` (`src/lib/auth/api-session.ts`);
+  `src/app/api/me/route.ts` is the example, `ME_PATH` / `meResponseSchema` in
+  `shared/src/api.ts` its contract. `src/proxy.ts` does not run on `/api`, and a
+  state-changing route must also verify the request origin itself.
+- Installed apps lag the backend: keep API responses backward compatible.
+- Deferred (not built): native Google/Apple sign-in, mobile payments, store
+  release/EAS, in-app account deletion, matching design system.
+
 ## Security
 
 - See `docs/security.md`. Drizzle parameterizes queries — never build SQL by
@@ -187,7 +226,8 @@ pnpm db:deploy        # applies pending migrations; runs automatically as an
 
 - `src/app/(legal)/` (ToS, Privacy, Acceptable Use, AI Disclosure, Cookies).
   Fill in `src/content/legal/config.ts` first; that's the
-  single source for company name/address/governing law and `LEGAL_VERSION`.
+  single source for company name/address/governing law. `LEGAL_VERSION` is
+  defined in `shared/src/legal.ts` (config.ts re-exports it).
 - Sign-up requires accepting current-version ToS/Privacy, enforced server-side
   in `src/lib/auth.ts`'s `before` hook — don't relax that to client-only.
 - Building an AI-facing feature? Drop `<AiDisclosureNotice>`
@@ -208,6 +248,10 @@ creating billable/public resources.
 ## Testing
 
 - Unit: `*.test.ts(x)` alongside source or in `src/__tests__/`; `@/*` → `src/*`.
+  `pnpm test` covers `src/` and `shared/src/`; the mobile app has its own Vitest
+  run and type check (`pnpm mobile:check`). The commit hook runs only
+  `pnpm check && pnpm test`, so run `pnpm mobile:check` after touching `mobile/`
+  or `shared/`.
 - E2E: `e2e/*.spec.ts`; Playwright auto-starts the dev server (Chromium only).
   Needs a local DB running for auth flows. Run locally with `pnpm e2e`; if
   port 3000 is taken by another project, use
@@ -231,3 +275,7 @@ creating billable/public resources.
   called from `.github/workflows/{ci,lockfile,dependabot-auto-merge}.yml`.
   Dependabot patch/minor PRs auto-merge once these pass —
   see [docs/maintenance/dependabot.md](./docs/maintenance/dependabot.md).
+- A local job in `ci.yml`, **`Mobile (type check, tests)`**, is also required:
+  `pnpm mobile:check` (Expo check offline) plus an Android + iOS Metro export.
+  Don't path-filter it. Dependabot doesn't bump Expo SDK packages; upgrade with
+  `expo install --fix` (`docs/setup/mobile.md`).

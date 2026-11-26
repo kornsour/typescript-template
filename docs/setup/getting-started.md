@@ -18,6 +18,10 @@ read-only, so it's safe to run before `pnpm bootstrap` or whenever something fee
 bash scripts/rename-app.sh my-app     # or use the `rename-app` skill
 ```
 
+Options: `--web-only` also deletes the mobile app; `--bundle-id com.acme.myapp`
+sets the iOS bundle identifier and Android package (default
+`com.example.<name without hyphens>`).
+
 ## 2. Bootstrap
 
 ```bash
@@ -27,7 +31,8 @@ pnpm dev
 
 `pnpm bootstrap` is idempotent. It creates `.env`, generates `BETTER_AUTH_SECRET`,
 creates the `my_app_dev` local database, points `DATABASE_URL` at it, installs
-deps, and applies the template's committed migrations (`pnpm db:migrate`).
+deps, and applies the template's committed migrations (`pnpm db:migrate`). If
+`mobile/` exists, it also creates `mobile/.env` from `mobile/.env.example`.
 
 Open http://localhost:3000 — sign up with email/password works immediately.
 Verification/reset emails are printed to the dev server console (no email
@@ -42,6 +47,7 @@ Each is inert until configured; add keys to `.env`:
 - **Real email** → set `AWS_REGION` + `EMAIL_FROM` (verified SES identity)
 - **Neon (deployed DB)** → [database.md](./database.md)
 - **Deploy** → [deployment.md](./deployment.md)
+- **Mobile app** (run it, or remove it) → [mobile.md](./mobile.md)
 
 The `provision-app` Claude skill walks an agent through all of these with the CLIs.
 
@@ -49,6 +55,8 @@ The `provision-app` Claude skill walks an agent through all of these with the CL
 
 ```bash
 pnpm dev            # dev server (Turbopack)
+pnpm dev:all        # web + Expo dev servers
+pnpm mobile:check   # mobile type check, tests, Expo version check
 pnpm check:fix      # lint + format
 pnpm test           # unit tests
 pnpm e2e            # Playwright e2e (local)

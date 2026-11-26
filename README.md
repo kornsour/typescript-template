@@ -3,6 +3,8 @@
 A batteries-included Next.js starter: TypeScript, Tailwind, Drizzle, **auth**
 (Google · Apple · email/password), **Stripe billing**, and a **local-Postgres →
 Neon** dev/prod split — with security defaults and agent tooling from the start.
+An optional [Expo](https://expo.dev) mobile app in `mobile/` shares the same
+backend and validation.
 
 ## Quick start
 
@@ -17,6 +19,24 @@ start postgresql@17`). Email/password sign-up works immediately; verification an
 reset links print to the dev server console. Add Google/Apple/Stripe/email keys
 to `.env` when you want them — each is inert until configured.
 
+## Web and mobile
+
+| Path | What it is |
+|------|------------|
+| repo root | Next.js web app and backend |
+| `mobile/` | Expo SDK 58 app (expo-router), email/password sign-in |
+| `shared/` | `@app/shared`: validation, constants, API contract |
+
+```bash
+pnpm dev:all          # web + Expo dev servers
+```
+
+Don't need mobile? Run `pnpm mobile:remove`, or rename with
+`bash scripts/rename-app.sh my-app --web-only`. Native Google/Apple sign-in,
+mobile payments, store release, and in-app account deletion are not built.
+Setup and details: [`docs/setup/mobile.md`](./docs/setup/mobile.md);
+the decision: [ADR-0026](./docs/adr/0026-web-and-mobile-workspace.md).
+
 ## Stack
 
 | Tool | Purpose |
@@ -28,6 +48,7 @@ to `.env` when you want them — each is inert until configured.
 | [better-auth](https://better-auth.com) | Self-hosted auth (Google, Apple, email/password) |
 | [Stripe](https://stripe.com) | Subscription billing (env-flagged) |
 | [Vercel AI SDK](https://ai-sdk.dev) | AI features — subscription CLIs in dev, API keys deployed ([docs](./docs/setup/ai.md)) |
+| [Expo](https://expo.dev) | Mobile app (optional) |
 | [Biome](https://biomejs.dev) · [Vitest](https://vitest.dev) · [Playwright](https://playwright.dev) | Lint/format · unit · e2e |
 
 ## Scripts
@@ -35,6 +56,8 @@ to `.env` when you want them — each is inert until configured.
 ```bash
 pnpm bootstrap    # bootstrap a fresh clone
 pnpm dev          # dev server
+pnpm dev:mobile   # Expo dev server
+pnpm mobile:check # mobile type check, tests, Expo version check
 pnpm build        # production build
 pnpm check:fix    # lint + format
 pnpm test         # unit tests

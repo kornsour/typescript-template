@@ -35,11 +35,33 @@ prefixed by the caller job name. Required status checks on the `main` ruleset:
   the most important guard for unattended merges).
 - **`ci / Lint & format (Biome)`**, **`ci / Type check`**,
   **`ci / Unit tests (Vitest)`**, **`ci / Build`**, **`ci / DB migration check`**.
+- **`Mobile (type check, tests)`** — a local job in `ci.yml` (no caller prefix);
+  see [ADR-0026](../adr/0026-web-and-mobile-workspace.md). Removed along with the
+  mobile app.
+
+Editing `.github/rulesets/default-branch.json` changes nothing on GitHub by
+itself: apply it with `scripts/setup-branch-protection.sh`, in this repo and in
+each derived repo, after the job it requires is on the default branch.
 
 CodeQL (default code scanning) also runs on PRs but is intentionally **not**
 required — it scans our code, not the bumped dependency, and requiring it risks
 wedging auto-merge on edge cases. Add it to the ruleset's required checks if you
 want a hard security gate.
+
+## Expo SDK packages (mobile)
+
+- **Ignored for version updates**: `expo`, `expo-*`, `@expo/*`, `jest-expo`,
+  `babel-preset-expo`, `react-native`, `react-native-*`, `@react-native/*`,
+  `@react-native-*`. Upgrade them together with `expo install --fix`
+  ([mobile.md](../setup/mobile.md#upgrading-the-expo-sdk)). The rules list
+  `update-types`, which leaves security updates able to open a PR.
+- **Grouped separately** (`shared-with-expo`): `react`, `react-dom`,
+  `@types/react`, `typescript`. The web app uses them too, so they still get
+  updates. If such a PR moves `mobile/package.json`'s `react` or `react-dom` off
+  the SDK's version, the Mobile check fails: restore the versions in
+  `mobile/package.json`, update the lockfile, and push. The CI check is offline
+  and does not catch `typescript` or `@types/react` drift in `mobile/`, so look at
+  `mobile/package.json` in the diff of such a PR.
 
 ## Overriding
 

@@ -15,7 +15,10 @@ skip() { printf "  \033[2m–\033[0m %s\n" "$1"; }
 say()  { printf "\n\033[1m%s\033[0m\n" "$1"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
-say "1/6 · Runtime"
+TOTAL=6
+[ -f mobile/package.json ] && TOTAL=7
+
+say "1/$TOTAL · Runtime"
 
 NODE_REQUIRED="$(cat .nvmrc 2>/dev/null || echo 24)"
 if have node; then
@@ -41,7 +44,7 @@ else
 	bad "pnpm not found — install via 'corepack enable' (Node ships corepack)"
 fi
 
-say "2/6 · Local Postgres"
+say "2/$TOTAL · Local Postgres"
 
 for c in psql createdb; do
 	have "$c" && ok "$c" || bad "$c (required) — brew install postgresql@17"
@@ -56,11 +59,11 @@ else
 	skip "pg_isready not found — can't confirm the server is running"
 fi
 
-say "3/6 · Misc required tools"
+say "3/$TOTAL · Misc required tools"
 
 have openssl && ok "openssl" || bad "openssl (required) — used to generate BETTER_AUTH_SECRET"
 
-say "4/6 · Project environment"
+say "4/$TOTAL · Project environment"
 
 if [ -f .env ]; then
 	ok ".env exists"
@@ -86,13 +89,13 @@ else
 	bad "node_modules missing — run 'pnpm install'"
 fi
 
-say "5/6 · Optional: provisioning/deploy CLIs"
+say "5/$TOTAL · Optional: provisioning/deploy CLIs"
 
 for c in sst neonctl gcloud gh stripe cf; do
 	have "$c" && ok "$c ($($c --version 2>/dev/null | head -n1))" || skip "$c — needed for the 'provision-app' skill / docs/cli-reference.md"
 done
 
-say "6/6 · Optional: Playwright (e2e)"
+say "6/$TOTAL · Optional: Playwright (e2e)"
 
 if have pnpm && [ -d node_modules/@playwright/test ]; then
 	if pnpm exec playwright install --dry-run chromium 2>/dev/null | grep -qi "browser is already installed\|^$"; then
@@ -102,6 +105,41 @@ if have pnpm && [ -d node_modules/@playwright/test ]; then
 	fi
 else
 	skip "@playwright/test not installed yet — run 'pnpm install' first"
+fi
+
+# Optional by design: only ok/warn/skip here, never bad(), so a machine set up
+# for web work alone still passes.
+if [ -f mobile/package.json ]; then
+	say "7/$TOTAL · Optional: mobile app (Expo)"
+
+	if [ -f mobile/.env ] || [ -f mobile/.env.local ]; then
+		ok "mobile env file exists"
+	elif [ -f mobile/.env.example ]; then
+		warn "mobile/.env missing — run 'pnpm bootstrap' (copies mobile/.env.example)"
+	else
+		skip "no mobile/.env.example — nothing to configure"
+	fi
+
+	if [ -d mobile/node_modules/expo ]; then
+		ok "mobile dependencies installed"
+	else
+		warn "mobile dependencies missing — run 'pnpm install'"
+	fi
+
+	if have adb; then
+		ok "adb (Android emulator/device)"
+	else
+		skip "adb — only needed to run on an Android emulator or USB device"
+	fi
+	if [ "$(uname -s)" = "Darwin" ]; then
+		if have xcrun && xcrun --find simctl >/dev/null 2>&1; then
+			ok "Xcode iOS Simulator"
+		else
+			skip "Xcode — only needed to run the iOS Simulator"
+		fi
+	else
+		skip "iOS Simulator needs macOS — use a physical device or an Android emulator"
+	fi
 fi
 
 if [ "${MISSING:-0}" = "1" ]; then

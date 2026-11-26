@@ -15,11 +15,15 @@ Everything the app reads is validated in `src/env.ts` and documented in
 into `sst.config.ts` as an `sst.Secret` or `environment` entry (deployed) — see
 step 5.
 
+**Web + mobile, or web only?** If `mobile/` exists and the user hasn't said, ask
+before provisioning. For web only, run `pnpm mobile:remove` first, so branch
+protection (step 5) doesn't require the mobile check.
+
 ## 0. Local baseline (no external accounts)
 
 ```bash
-pnpm bootstrap  # creates .env, generates BETTER_AUTH_SECRET, local DB, pushes schema
-pnpm dev
+pnpm bootstrap  # creates .env, generates BETTER_AUTH_SECRET, local DB, applies migrations
+pnpm dev        # web; with mobile/: pnpm dev:all
 ```
 The app runs with just local Postgres + email/password. Add the services below as needed.
 
@@ -202,6 +206,14 @@ dashboard (no API on the free plan) — see
 [`docs/setup/turnstile.md`](../../../docs/setup/turnstile.md). Set
 `NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET_KEY` locally and wire
 them into `sst.config.ts` (`environment` / `sst.Secret`) for deployed builds.
+
+## Mobile app (only if `mobile/` exists)
+
+The app uses the deployed web app as its backend, so deploy that first, then
+point the app at its URL. Confirm the bundle identifier / package in
+`mobile/app.json` is no longer `com.example.*` before creating anything keyed on
+it. Setup: [`docs/setup/mobile.md`](../../../docs/setup/mobile.md). Store
+accounts and builds are billable or public, so confirm first.
 
 ## After provisioning
 

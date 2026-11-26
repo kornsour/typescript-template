@@ -6,6 +6,7 @@
 #   - generates BETTER_AUTH_SECRET
 #   - creates the local dev Postgres database and points DATABASE_URL at it
 #   - installs deps and applies committed migrations
+#   - creates mobile/.env from mobile/.env.example (only if mobile/ exists)
 #
 # Idempotent: safe to re-run. External services (Neon/Google/Apple/Stripe) are
 # NOT provisioned here — see docs/setup/ and the `provision-app` Claude skill.
@@ -37,6 +38,15 @@ else
 	cp .env.example .env
 	echo "  ✓ created .env from .env.example"
 fi
+# The mobile app is optional: `pnpm mobile:remove` deletes it.
+if [ -f mobile/package.json ] && [ -f mobile/.env.example ]; then
+	if [ -f mobile/.env ]; then
+		echo "  ✓ mobile/.env already exists (leaving it alone)"
+	else
+		cp mobile/.env.example mobile/.env
+		echo "  ✓ created mobile/.env from mobile/.env.example"
+	fi
+fi
 
 say "3/6 · Auth secret"
 if grep -qE '^BETTER_AUTH_SECRET=""?$' .env; then
@@ -65,5 +75,14 @@ node -e 'const fs=require("fs");const p=".env";let t=fs.readFileSync(p,"utf8");i
 say "6/6 · Schema"
 pnpm db:migrate && echo "  ✓ migrations applied"
 
-say "Done. Start the app with:  pnpm dev"
+if [ -f mobile/package.json ]; then
+	say "Done. Start the apps with:"
+	echo "  pnpm dev          # web only"
+	echo "  pnpm dev:mobile   # Expo dev server only (the app needs the web server for its API)"
+	echo "  pnpm dev:all      # both"
+	echo
+	echo "Web only? Remove the mobile app with:  pnpm mobile:remove"
+else
+	say "Done. Start the app with:  pnpm dev"
+fi
 echo "Next: add OAuth / Stripe keys to .env — see docs/setup/ or run the 'provision-app' skill."

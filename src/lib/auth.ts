@@ -1,3 +1,4 @@
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, passwordError } from "@app/shared/password";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
@@ -6,8 +7,8 @@ import { LEGAL_VERSION } from "@/content/legal/config";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
 import { env } from "@/env";
+import { mobilePlugins, mobileTrustedOrigins } from "@/lib/auth/mobile";
 import { sendEmail } from "@/lib/email";
-import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, passwordError } from "@/lib/password";
 
 /**
  * Lifetime of reset-password and email-verification links. Pinned explicitly (a
@@ -39,6 +40,8 @@ export const auth = betterAuth({
 	}),
 	secret: env.BETTER_AUTH_SECRET,
 	baseURL: env.NEXT_PUBLIC_APP_URL,
+	// The base URL's own origin is always trusted; this only adds the mobile app.
+	trustedOrigins: mobileTrustedOrigins,
 	user: {
 		additionalFields: {
 			legalAcceptedVersion: { type: "string", required: false, input: true },
@@ -103,7 +106,7 @@ export const auth = betterAuth({
 	},
 	hooks: {
 		// Server-side password policy (defense in depth — the client form can be
-		// bypassed). Enforces the full policy in src/lib/password.ts, not just the
+		// bypassed). Enforces the full policy in shared/src/password.ts, not just the
 		// min length better-auth checks natively.
 		before: createAuthMiddleware(async (ctx) => {
 			if (ctx.path === "/sign-up/email" || ctx.path === "/reset-password") {
@@ -128,8 +131,9 @@ export const auth = betterAuth({
 			}
 		}),
 	},
-	// Ensures Set-Cookie headers from server actions are persisted (App Router).
-	plugins: [nextCookies()],
+	// nextCookies() ensures Set-Cookie headers from server actions are persisted
+	// (App Router). It must stay the last plugin.
+	plugins: [...mobilePlugins, nextCookies()],
 });
 
 export type Session = typeof auth.$Infer.Session;
