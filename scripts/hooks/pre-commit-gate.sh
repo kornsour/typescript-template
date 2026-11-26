@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #
-# Claude Code PreToolUse hook: block `git commit` unless lint + unit tests pass.
-# Wired in .claude/settings.json. Receives the tool-call JSON on stdin; exits 2
-# to block the commit (stderr is shown to the agent), 0 to allow.
+# Claude Code PreToolUse hook: block `git commit` unless lint + unit tests pass
+# in the checkout being committed. Wired in .claude/settings.json. Receives the
+# tool-call JSON on stdin; exits 2 to block the commit (stderr is shown to the
+# agent), 0 to allow. The logic is in pre-commit-gate.mjs.
 #
 set -euo pipefail
 
@@ -10,30 +11,13 @@ INPUT="$(cat)"
 
 # Fast path: this hook matches *every* Bash call, but only commits are gated, so
 # bail before paying for a cold Node start. "commit" survives JSON escaping, and
-# this is a deliberate superset of the real check below — a non-commit command
-# that merely mentions the word costs one wasted parse, never a skipped gate.
+# this is a deliberate superset of the real check — a non-commit command that
+# merely mentions the word costs one wasted parse, never a skipped gate.
 case "$INPUT" in
 	*commit*) ;;
 	*) exit 0 ;;
 esac
 
-# Extract the bash command being run (Node is always available in this repo).
-CMD="$(printf '%s' "$INPUT" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);process.stdout.write(j.tool_input?.command??"")}catch{process.stdout.write("")}})')"
-
-# Only gate actual commits.
-case "$CMD" in
-	*"git commit"*) ;;
-	*) exit 0 ;;
-esac
-
-echo "🔒 Pre-commit gate: running 'pnpm check' and 'pnpm test'…" >&2
-if ! pnpm check >&2; then
-	echo "❌ Biome check failed — fix with 'pnpm check:fix' before committing." >&2
-	exit 2
-fi
-if ! pnpm test >&2; then
-	echo "❌ Unit tests failed — fix before committing." >&2
-	exit 2
-fi
-echo "✅ Pre-commit gate passed." >&2
-exit 0
+# Only exit code 2 blocks a tool call, so any other failure (no Node, a crash in
+# the script) must become 2 or the commit would go through unchecked.
+printf '%s' "$INPUT" | node "$(dirname "${BASH_SOURCE[0]}")/pre-commit-gate.mjs" || exit 2

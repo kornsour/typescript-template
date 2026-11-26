@@ -47,6 +47,7 @@
 			"shared/**",
 			"mobile/**",
 			"!**/node_modules",
+			"!!.claude/worktrees",
 			"!mobile/.expo",
 			"!mobile/expo-env.d.ts",
 			"*.config.ts",
