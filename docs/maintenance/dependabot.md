@@ -38,6 +38,9 @@ prefixed by the caller job name. Required status checks on the `main` ruleset:
 - **`Mobile (type check, tests)`** — a local job in `ci.yml` (no caller prefix);
   see [ADR-0026](../adr/0026-web-and-mobile-workspace.md). Removed along with the
   mobile app.
+- **`Gitleaks (full history)`** — the secret scan (`secret-scan.yml`). It covers
+  all history, so a finding blocks every PR until the credential is revoked or a
+  reviewed false positive is added to `.gitleaksignore`.
 
 Editing `.github/rulesets/default-branch.json` changes nothing on GitHub by
 itself: apply it with `scripts/setup-branch-protection.sh`, in this repo and in

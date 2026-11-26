@@ -34,7 +34,8 @@
 					{ "context": "ci / Build" },
 					{ "context": "ci / DB migration check" },
 					{ "context": "Mobile (type check, tests)" },
-					{ "context": "lockfile / integrity" }
+					{ "context": "lockfile / integrity" },
+					{ "context": "Gitleaks (full history)" }
 				]
 			}
 		}
