@@ -16,8 +16,8 @@ concurrency:
 jobs:
   ci:
     # Centralized, standardized CI shared across the template-derived repos.
-    # See github.com/kornsour/gh-automation.
-    uses: kornsour/gh-automation/.github/workflows/ci.yml@b3c9725939d515a545219990f226bcfb1b754af6 # v1.1.0
+    # See github.com/lurking-walrus/gh-automation.
+    uses: lurking-walrus/gh-automation/.github/workflows/ci.yml@9755c5a968c76d19c7f54017d4bcd1b314810426 # main 2026-11-26
     with:
       migration-check: true
 
@@ -25,7 +25,7 @@ jobs:
     name: ADR index check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Unique ADR numbers, complete index
         run: scripts/check-adr-index.sh
 
